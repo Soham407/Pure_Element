@@ -87,15 +87,24 @@ export const apiService = {
   // Admin endpoints
   admin: {
     // Products
+    getProducts: () => apiClient.get('/admin/products'),
     createProduct: (data) => apiClient.post('/admin/products', data),
     updateProduct: (id, data) => apiClient.put(`/admin/products/${id}`, data),
     deleteProduct: (id) => apiClient.delete(`/admin/products/${id}`),
     
     // Categories
+    getCategories: () => apiClient.get('/admin/categories'),
     createCategory: (name) => apiClient.post('/admin/categories', { name }),
+    updateCategory: (id, data) => apiClient.put(`/admin/categories/${id}`, data),
+    deleteCategory: (id) => apiClient.delete(`/admin/categories/${id}`),
     
     // Users
     getUsers: () => apiClient.get('/admin/users'),
+    updateUser: (id, data) => apiClient.put(`/admin/users/${id}`, data),
+    deleteUser: (id) => apiClient.delete(`/admin/users/${id}`),
+    
+    // Dashboard stats
+    getDashboardStats: () => apiClient.get('/admin/dashboard/stats'),
     
     // Image upload
     uploadImage: (formData) => apiClient.post('/admin/upload-image', formData, {

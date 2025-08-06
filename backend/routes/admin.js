@@ -64,6 +64,32 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
   }
 });
 
+// Get all products (admin only)
+router.get('/products', async (req, res) => {
+  try {
+    const { data: products, error } = await supabaseAdmin
+      .from('products')
+      .select(`
+        *,
+        categories (
+          id,
+          name
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Get products error:', error);
+      return res.status(500).json({ error: 'Failed to fetch products' });
+    }
+
+    res.json({ products });
+  } catch (error) {
+    console.error('Get products error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Create new product
 router.post('/products', async (req, res) => {
   try {
@@ -254,6 +280,26 @@ router.delete('/products/:id', async (req, res) => {
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {
     console.error('Delete product error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get all categories (admin only)
+router.get('/categories', async (req, res) => {
+  try {
+    const { data: categories, error } = await supabaseAdmin
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.error('Get categories error:', error);
+      return res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+
+    res.json({ categories });
+  } catch (error) {
+    console.error('Get categories error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -9,10 +9,19 @@
     "client": "cd frontend && npm start",
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
-  "keywords": ["ecommerce", "ayurvedic", "react", "nodejs", "supabase"],
+  "keywords": [
+    "ecommerce",
+    "ayurvedic",
+    "react",
+    "nodejs",
+    "supabase"
+  ],
   "author": "Soham",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.53.0"
   }
 }

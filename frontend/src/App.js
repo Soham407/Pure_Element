@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 // Context Providers
@@ -20,6 +20,8 @@ import Cart from './pages/Cart';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import AboutUs from './pages/AboutUs';
+import Stores from './pages/Stores';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminProductForm from './pages/admin/AdminProductForm';
@@ -42,6 +44,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/stores" element={<Stores />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 
@@ -58,6 +62,7 @@ function App() {
                 } />
                 
                 {/* Admin Routes */}
+                <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/dashboard" element={
                   <AdminRoute>
                     <AdminDashboard />
@@ -73,7 +78,7 @@ function App() {
                     <AdminProductForm />
                   </AdminRoute>
                 } />
-                <Route path="/admin/products/edit/:id" element={
+                <Route path="/admin/products/:id/edit" element={
                   <AdminRoute>
                     <AdminProductForm />
                   </AdminRoute>

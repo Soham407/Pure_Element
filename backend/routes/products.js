@@ -66,7 +66,12 @@ router.get('/:id', async (req, res) => {
     const { data: product, error } = await supabaseAdmin
       .from('products')
       .select(`
-        *,
+        id,
+        name,
+        description,
+        price,
+        stock,
+        image_url,
         categories (
           id,
           name

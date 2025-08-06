@@ -142,10 +142,12 @@ const AdminProductForm = () => {
       }
 
       const productData = {
-        ...formData,
+        name: formData.name,
+        description: formData.description,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
-        image_url: imageUrl
+        categoryId: formData.category_id,
+        imageUrl: imageUrl
       };
 
       if (isEdit) {
