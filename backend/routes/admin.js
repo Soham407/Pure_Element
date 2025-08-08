@@ -284,6 +284,59 @@ router.delete('/products/:id', async (req, res) => {
   }
 });
 
+// Get parent categories (admin only)
+router.get('/categories/parents', async (req, res) => {
+  try {
+    const { data: categories, error } = await supabaseAdmin
+      .from('categories')
+      .select('*')
+      .is('parent_id', null)
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.error('Get parent categories error:', error);
+      return res.status(500).json({ error: 'Failed to fetch parent categories' });
+    }
+
+    res.json({ categories });
+  } catch (error) {
+    console.error('Get parent categories error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get child categories (admin only) – optional ?parentId=<uuid>
+router.get('/categories/children', async (req, res) => {
+  try {
+    const { parentId } = req.query;
+
+    let query = supabaseAdmin
+      .from('categories')
+      .select(
+        `*,
+         parent:categories!categories_parent_id_fkey(id,name)`
+      )
+      .not('parent_id', 'is', null)
+      .order('name', { ascending: true });
+
+    if (parentId) {
+      query = query.eq('parent_id', parentId);
+    }
+
+    const { data: categories, error } = await query;
+
+    if (error) {
+      console.error('Get child categories error:', error);
+      return res.status(500).json({ error: 'Failed to fetch child categories' });
+    }
+
+    res.json({ categories });
+  } catch (error) {
+    console.error('Get child categories error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get all categories (admin only)
 router.get('/categories', async (req, res) => {
   try {

@@ -26,7 +26,7 @@ Detailed view of a single product with a larger image, full description, price, 
 Shopping Cart Page (/cart):
 Display all items currently in the user's shopping cart.
 For each item: product image, name, quantity, price, and subtotal.
-Options to adjust item quantity or remove items from the cart.
+Options to adjust item quantity or remove items from the cart.  
 Display the total cart value.
 A "Proceed to Checkout" button (functionality can be simplified, focusing on UI for now).
 User Profile Page (/profile):

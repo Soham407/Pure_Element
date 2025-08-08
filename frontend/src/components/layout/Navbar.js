@@ -1,45 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, ShoppingCart, User, Settings, Package, LogOut, Search, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
-import { supabase } from '../../supabaseClient';
+import useCategories from '../../hooks/useCategories';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [menuTree, setMenuTree] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openMobileDropdown, setOpenMobileDropdown] = useState(null);
+  const [openDesktopDropdown, setOpenDesktopDropdown] = useState(null);
+  const { categories: menuTree, loading: navLoading, error: navError } = useCategories();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { getCartItemCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    fetchMenuTree();
-  }, []);
 
-  const fetchMenuTree = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('menu_categories')
-        .select('*');
-      
-      if (error) {
-        console.error('Error fetching menu tree:', error);
-        return;
-      }
-      
-      setMenuTree(data || []);
-    } catch (error) {
-      console.error('Error fetching menu tree:', error);
-    }
-  };
 
   const handleLogout = () => {
     logout();
     navigate('/');
     setIsMenuOpen(false);
   };
+
+  if (navLoading) {
+    return <div>Loading navigation...</div>;
+  }
+  if (navError) {
+    return <div>Error loading navigation</div>;
+  }
 
   const cartItemCount = getCartItemCount();
   
@@ -167,13 +157,22 @@ const Navbar = () => {
             {/* Static link before categories */}
             <Link to="/about" className={`text-gray-700 hover:text-primary-600 uppercase ${location.pathname==='/about'?'text-primary-600 font-medium':''}`}>ABOUT US</Link>
             {menuTree.map((item)=> (
-              <div key={item.id} className="relative group">
+              <div
+               key={item.id}
+               className="relative group"
+               onMouseEnter={() => setOpenDesktopDropdown(item.id)}
+               onMouseLeave={() => setOpenDesktopDropdown(null)}
+             >
                 <button className="flex items-center space-x-1 text-gray-700 hover:text-primary-600 uppercase">
                   <span>{item.name}</span>
                   {item.children && item.children.length>0 && <ChevronDown className="w-4 h-4"/>}
                 </button>
                 {item.children && item.children.length>0 && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all p-2 z-50">
+                  <div
+                     className={`absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md transition-all p-2 z-50 
+                       ${openDesktopDropdown===item.id ? 'opacity-100 visible' : 'opacity-0 invisible'} 
+                       group-hover:opacity-100 group-hover:visible`}
+                   >
                     {item.children.map((child)=>(
                       <Link key={child.id} to={`/products?category=${child.id}`} className="block px-3 py-1 text-sm text-gray-700 hover:text-primary-600 capitalize">
                         {child.name}
@@ -211,11 +210,15 @@ const Navbar = () => {
               <Link to="/about" onClick={()=>setIsMenuOpen(false)} className="block px-2 py-1 text-gray-700 hover:text-primary-600">ABOUT US</Link>
               {menuTree.map((item)=> (
                 <div key={item.id}>
-                  <button className="flex items-center justify-between w-full px-2 py-1 text-gray-700 hover:text-primary-600 uppercase">
+                  {/* Parent category button */}
+                  <button
+                    onClick={() => setOpenMobileDropdown(openMobileDropdown === item.id ? null : item.id)}
+                    className="flex items-center justify-between w-full px-2 py-1 text-gray-700 hover:text-primary-600 uppercase"
+                  >
                     <span>{item.name}</span>
                     {item.children && item.children.length>0 && <ChevronDown className="w-4 h-4"/>}
                   </button>
-                  {item.children && item.children.length>0 && (
+                  {item.children && item.children.length>0 && openMobileDropdown === item.id && (
                     <div className="pl-4">
                       {item.children.map(child=> (
                         <Link key={child.id} to={`/products?category=${child.id}`} onClick={()=>setIsMenuOpen(false)} className="block px-2 py-1 text-sm text-gray-600 hover:text-primary-600 capitalize">

@@ -94,6 +94,11 @@ export const apiService = {
     
     // Categories
     getCategories: () => apiClient.get('/admin/categories'),
+    getParentCategories: () => apiClient.get('/admin/categories/parents'),
+    getChildCategories: (parentId) => {
+      const query = parentId ? `?parentId=${parentId}` : '';
+      return apiClient.get(`/admin/categories/children${query}`);
+    },
     createCategory: (name) => apiClient.post('/admin/categories', { name }),
     updateCategory: (id, data) => apiClient.put(`/admin/categories/${id}`, data),
     deleteCategory: (id) => apiClient.delete(`/admin/categories/${id}`),

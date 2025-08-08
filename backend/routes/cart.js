@@ -27,15 +27,23 @@ router.get('/', authenticateToken, async (req, res) => {
         )
       `)
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (cartError) {
       console.error('Get cart error:', cartError);
       return res.status(500).json({ error: 'Failed to fetch cart' });
     }
 
+    if (!cart) {
+      return res.json({ cart: { id: null, cart_items: [], total: 0 } });
+    }
+
     // Calculate total
-    const total = cart.cart_items.reduce((sum, item) => {
+      
+      
+
+    // Calculate total
+    const total = (cart.cart_items || []).reduce((sum, item) => {
       return sum + (item.products.price * item.quantity);
     }, 0);
 
@@ -66,7 +74,7 @@ router.post('/add', authenticateToken, async (req, res) => {
       .from('products')
       .select('id, stock')
       .eq('id', productId)
-      .single();
+      .maybeSingle();
 
     if (productError || !product) {
       return res.status(404).json({ error: 'Product not found' });
@@ -81,7 +89,7 @@ router.post('/add', authenticateToken, async (req, res) => {
       .from('carts')
       .select('id')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (cartError || !cart) {
       return res.status(500).json({ error: 'Cart not found' });
@@ -93,7 +101,7 @@ router.post('/add', authenticateToken, async (req, res) => {
       .select('id, quantity')
       .eq('cart_id', cart.id)
       .eq('product_id', productId)
-      .single();
+      .maybeSingle();
 
     if (existingItem) {
       // Update quantity
@@ -157,7 +165,7 @@ router.put('/update/:itemId', authenticateToken, async (req, res) => {
       `)
       .eq('id', itemId)
       .eq('carts.user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (itemError || !cartItem) {
       return res.status(404).json({ error: 'Cart item not found' });
@@ -226,7 +234,7 @@ router.delete('/clear', authenticateToken, async (req, res) => {
       .from('carts')
       .select('id')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (cartError || !cart) {
       return res.status(500).json({ error: 'Cart not found' });

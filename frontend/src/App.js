@@ -24,6 +24,8 @@ import AboutUs from './pages/AboutUs';
 import Stores from './pages/Stores';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
+import AdminParentCategories from './pages/admin/AdminParentCategories';
+import AdminChildCategories from './pages/admin/AdminChildCategories';
 import AdminProductForm from './pages/admin/AdminProductForm';
 
 function App() {
@@ -81,6 +83,18 @@ function App() {
                 <Route path="/admin/products/:id/edit" element={
                   <AdminRoute>
                     <AdminProductForm />
+                  </AdminRoute>
+                } />
+
+                {/* Category Management */}
+                <Route path="/admin/categories/parents" element={
+                  <AdminRoute>
+                    <AdminParentCategories />
+                  </AdminRoute>
+                } />
+                <Route path="/admin/categories/children" element={
+                  <AdminRoute>
+                    <AdminChildCategories />
                   </AdminRoute>
                 } />
               </Routes>
