@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiService } from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -15,9 +15,11 @@ const AdminProductForm = () => {
     description: '',
     price: '',
     stock: '',
+    parent_category_id: '',
     category_id: ''
   });
-  const [categories, setCategories] = useState([]);
+  const [parentCategories, setParentCategories] = useState([]);
+  const [childCategories, setChildCategories] = useState([]);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,33 +27,60 @@ const AdminProductForm = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    fetchCategories();
+    fetchParentCategories();
     if (isEdit) {
       fetchProduct();
     }
-  }, [id, isEdit]);
+  }, [id, isEdit, fetchProduct]);
 
-  const fetchCategories = async () => {
+  const fetchParentCategories = async () => {
     try {
-      const response = await apiService.categories.getAll();
-      setCategories(response.data.categories || []);
+      const response = await apiService.admin.getParentCategories();
+      setParentCategories(response.data.categories || []);
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
-      toast.error('Failed to load categories');
+      console.error('Failed to fetch parent categories:', error);
+      toast.error('Failed to load parent categories');
     }
   };
 
-  const fetchProduct = async () => {
+  const fetchChildCategories = async (parentId) => {
+    try {
+      const response = await apiService.admin.getChildCategories(parentId);
+      setChildCategories(response.data.categories || []);
+    } catch (error) {
+      console.error('Failed to fetch child categories:', error);
+      toast.error('Failed to load child categories');
+      setChildCategories([]);
+    }
+  };
+
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await apiService.products.getById(id);
       const product = response.data.product;
+      
+      // Get the category details to determine if it's a child category
+      const categoryResponse = await apiService.admin.getCategories();
+      const allCategories = categoryResponse.data.categories || [];
+      const productCategory = allCategories.find(cat => cat.id === product.category_id);
+      
+      // Check if the product category is a child category (has parent_id)
+      const isChildCategory = productCategory?.parent_id;
+      
       setFormData({
         name: product.name,
         description: product.description || '',
         price: product.price.toString(),
         stock: product.stock.toString(),
-        category_id: product.category_id
+        parent_category_id: isChildCategory ? productCategory.parent_id : product.category_id,
+        category_id: isChildCategory ? product.category_id : ''
       });
+      
+      // If it's a child category, fetch child categories for the parent
+      if (isChildCategory) {
+        await fetchChildCategories(productCategory.parent_id);
+      }
+      
       setImagePreview(product.image_url);
     } catch (error) {
       console.error('Failed to fetch product:', error);
@@ -60,14 +89,37 @@ const AdminProductForm = () => {
     } finally {
       setInitialLoading(false);
     }
-  };
+  }, [id, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'parent_category_id') {
+      // When parent category changes, reset child category and fetch new child categories
+      setFormData(prev => ({
+        ...prev,
+        parent_category_id: value,
+        category_id: '' // Reset child category
+      }));
+      
+      if (value) {
+        fetchChildCategories(value);
+      } else {
+        setChildCategories([]);
+      }
+    } else if (name === 'category_id') {
+      // When child category changes, update the form data
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+    
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -114,8 +166,9 @@ const AdminProductForm = () => {
       newErrors.stock = 'Valid stock quantity is required';
     }
 
-    if (!formData.category_id) {
-      newErrors.category_id = 'Category is required';
+    // Category validation: parent category is mandatory
+    if (!formData.parent_category_id) {
+      newErrors.parent_category_id = 'Parent category is required';
     }
 
     setErrors(newErrors);
@@ -141,12 +194,15 @@ const AdminProductForm = () => {
         imageUrl = uploadResponse.data.imageUrl;
       }
 
+      // Use child category if selected, otherwise use parent category
+      const categoryId = formData.category_id || formData.parent_category_id;
+      
       const productData = {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
-        categoryId: formData.category_id,
+        categoryId: categoryId,
         imageUrl: imageUrl
       };
 
@@ -272,23 +328,56 @@ const AdminProductForm = () => {
 
             {/* Category */}
             <div>
+              <label htmlFor="parent_category_id" className="block text-sm font-medium text-gray-700 mb-1">
+                Parent Category *
+              </label>
+              <select
+                id="parent_category_id"
+                name="parent_category_id"
+                value={formData.parent_category_id}
+                onChange={handleChange}
+                className={`input-field ${errors.parent_category_id ? 'border-red-500' : ''}`}
+              >
+                <option value="">Select a parent category</option>
+                {parentCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-sm text-gray-500">
+                Select a parent category to enable child category selection
+              </p>
+              {errors.parent_category_id && (
+                <p className="mt-1 text-sm text-red-600">{errors.parent_category_id}</p>
+              )}
+            </div>
+
+            <div>
               <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-1">
-                Category *
+                Child Category (Optional)
               </label>
               <select
                 id="category_id"
                 name="category_id"
                 value={formData.category_id}
                 onChange={handleChange}
-                className={`input-field ${errors.category_id ? 'border-red-500' : ''}`}
+                disabled={!formData.parent_category_id}
+                className={`input-field ${errors.category_id ? 'border-red-500' : ''} ${!formData.parent_category_id ? 'bg-gray-100 cursor-not-allowed' : ''}`}
               >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
+                <option value="">{formData.parent_category_id ? 'Select a child category (optional)' : 'Select a parent category first'}</option>
+                {childCategories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-sm text-gray-500">
+                {formData.parent_category_id 
+                  ? 'Select a child category for more specific categorization, or leave empty to assign to the parent category'
+                  : 'Child categories will be available after selecting a parent category'
+                }
+              </p>
               {errors.category_id && (
                 <p className="mt-1 text-sm text-red-600">{errors.category_id}</p>
               )}

@@ -312,10 +312,7 @@ router.get('/categories/children', async (req, res) => {
 
     let query = supabaseAdmin
       .from('categories')
-      .select(
-        `*,
-         parent:categories!categories_parent_id_fkey(id,name)`
-      )
+      .select('*')
       .not('parent_id', 'is', null)
       .order('name', { ascending: true });
 
