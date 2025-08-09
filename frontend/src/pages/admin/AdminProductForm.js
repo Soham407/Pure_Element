@@ -26,12 +26,7 @@ const AdminProductForm = () => {
   const [initialLoading, setInitialLoading] = useState(isEdit);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    fetchParentCategories();
-    if (isEdit) {
-      fetchProduct();
-    }
-  }, [id, isEdit, fetchProduct]);
+  
 
   const fetchParentCategories = async () => {
     try {
@@ -90,6 +85,13 @@ const AdminProductForm = () => {
       setInitialLoading(false);
     }
   }, [id, navigate]);
+
+  useEffect(() => {
+    fetchParentCategories();
+    if (isEdit) {
+      fetchProduct();
+    }
+  }, [id, isEdit, fetchProduct]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
