@@ -84,6 +84,13 @@ export const apiService = {
     getOrders: () => apiClient.get('/profile/orders'),
   },
 
+  // Orders (versioned)
+  orders: {
+    getMy: () => apiClient.get('/v1/orders/my'),
+    getAll: () => apiClient.get('/v1/orders/all'),
+    updateStatus: (orderId, status) => apiClient.patch(`/v1/orders/${orderId}/status`, { status }),
+  },
+
   // Admin endpoints
   admin: {
     // Products
@@ -99,7 +106,7 @@ export const apiService = {
       const query = parentId ? `?parentId=${parentId}` : '';
       return apiClient.get(`/admin/categories/children${query}`);
     },
-    createCategory: (name) => apiClient.post('/admin/categories', { name }),
+    createCategory: (payload) => apiClient.post('/admin/categories', payload),
     updateCategory: (id, data) => apiClient.put(`/admin/categories/${id}`, data),
     deleteCategory: (id) => apiClient.delete(`/admin/categories/${id}`),
     

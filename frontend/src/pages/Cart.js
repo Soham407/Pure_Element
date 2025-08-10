@@ -198,9 +198,9 @@ const Cart = () => {
                 </div>
               </div>
 
-              <button className="w-full btn-primary text-lg py-3 mt-6">
+              <Link to="/checkout" className="w-full btn-primary text-lg py-3 mt-6 block text-center">
                 Proceed to Checkout
-              </button>
+              </Link>
 
               <div className="mt-4 text-center">
                 <p className="text-sm text-gray-500">

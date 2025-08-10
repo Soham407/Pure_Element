@@ -357,7 +357,7 @@ router.get('/categories', async (req, res) => {
 // Create new category
 router.post('/categories', async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, parentId, showInNav, sortOrder } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Category name is required' });
@@ -374,10 +374,32 @@ router.post('/categories', async (req, res) => {
       return res.status(400).json({ error: 'Category already exists' });
     }
 
+    const insertData = { name };
+
+    if (parentId !== undefined) {
+      if (parentId === null) {
+        insertData.parent_id = null;
+      } else {
+        // Validate parent exists
+        const { data: parent, error: parentErr } = await supabaseAdmin
+          .from('categories')
+          .select('id')
+          .eq('id', parentId)
+          .single();
+        if (parentErr || !parent) {
+          return res.status(400).json({ error: 'Invalid parent category' });
+        }
+        insertData.parent_id = parentId;
+      }
+    }
+
+    if (showInNav !== undefined) insertData.show_in_nav = !!showInNav;
+    if (sortOrder !== undefined) insertData.sort_order = parseInt(sortOrder) || 0;
+
     // Create category
     const { data: category, error } = await supabaseAdmin
       .from('categories')
-      .insert([{ name }])
+      .insert([insertData])
       .select('*')
       .single();
 
@@ -392,6 +414,116 @@ router.post('/categories', async (req, res) => {
     });
   } catch (error) {
     console.error('Create category error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update category
+router.put('/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, parentId, showInNav, sortOrder } = req.body;
+
+    // Ensure category exists
+    const { data: existing, error: getErr } = await supabaseAdmin
+      .from('categories')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (getErr || !existing) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    const updateData = {};
+    if (name !== undefined) {
+      // Optional: check unique name if changed
+      if (name !== existing.name) {
+        const { data: dupList, error: dupErr } = await supabaseAdmin
+          .from('categories')
+          .select('id')
+          .eq('name', name);
+        if (dupErr) {
+          return res.status(500).json({ error: 'Failed to validate unique name' });
+        }
+        if (Array.isArray(dupList) && dupList.some((row) => row.id !== id)) {
+          return res.status(400).json({ error: 'Category name already exists' });
+        }
+      }
+      updateData.name = name;
+    }
+    if (parentId !== undefined) {
+      if (parentId === null) {
+        updateData.parent_id = null;
+      } else {
+        if (parentId === id) {
+          return res.status(400).json({ error: 'A category cannot be its own parent' });
+        }
+        // Validate parent exists
+        const { data: parent, error: parentErr } = await supabaseAdmin
+          .from('categories')
+          .select('id')
+          .eq('id', parentId)
+          .single();
+        if (parentErr || !parent) {
+          return res.status(400).json({ error: 'Invalid parent category' });
+        }
+        updateData.parent_id = parentId;
+      }
+    }
+    if (showInNav !== undefined) updateData.show_in_nav = !!showInNav;
+    if (sortOrder !== undefined) updateData.sort_order = parseInt(sortOrder);
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    const { data: updated, error } = await supabaseAdmin
+      .from('categories')
+      .update(updateData)
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Update category error:', error);
+      return res.status(500).json({ error: 'Failed to update category' });
+    }
+
+    res.json({ message: 'Category updated successfully', category: updated });
+  } catch (error) {
+    console.error('Update category error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete category
+router.delete('/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Ensure category exists
+    const { data: existing, error: getErr } = await supabaseAdmin
+      .from('categories')
+      .select('id, name')
+      .eq('id', id)
+      .single();
+    if (getErr || !existing) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    const { error } = await supabaseAdmin
+      .from('categories')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Delete category error:', error);
+      return res.status(500).json({ error: 'Failed to delete category' });
+    }
+
+    res.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    console.error('Delete category error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

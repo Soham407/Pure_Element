@@ -1,200 +1,129 @@
--- Pure_element E-commerce Database Setup
--- This script creates all necessary tables, policies, and initial data
+create table public.cart_items (
+  id uuid not null default gen_random_uuid (),
+  cart_id uuid not null,
+  product_id uuid not null,
+  quantity integer not null default 1,
+  created_at timestamp with time zone null default now(),
+  constraint cart_items_pkey primary key (id),
+  constraint cart_items_cart_id_product_id_key unique (cart_id, product_id),
+  constraint cart_items_cart_id_fkey foreign KEY (cart_id) references carts (id),
+  constraint cart_items_product_id_fkey foreign KEY (product_id) references products (id),
+  constraint cart_items_quantity_check check ((quantity > 0))
+) TABLESPACE pg_default;
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+create table public.carts (
+  id uuid not null default gen_random_uuid (),
+  user_id uuid not null,
+  created_at timestamp with time zone null default now(),
+  updated_at timestamp with time zone null default now(),
+  constraint carts_pkey primary key (id),
+  constraint carts_user_id_key unique (user_id),
+  constraint carts_user_id_fkey foreign KEY (user_id) references users (id)
+) TABLESPACE pg_default;
 
--- Create users table
-CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),
-    created_at TIMESTAMPTZ DEFAULT now(),
-    updated_at TIMESTAMPTZ DEFAULT now()
-);
 
--- Create categories table
-CREATE TABLE IF NOT EXISTS categories (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT UNIQUE NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT now()
-);
+create table public.categories (
+  id uuid not null default gen_random_uuid (),
+  name text not null,
+  created_at timestamp with time zone null default now(),
+  parent_id uuid null,
+  show_in_nav boolean not null default true,
+  sort_order integer not null default 0,
+  constraint categories_pkey primary key (id),
+  constraint categories_name_key unique (name),
+  constraint categories_parent_id_fkey foreign KEY (parent_id) references categories (id) on delete set null
+) TABLESPACE pg_default;
 
--- Create products table
-CREATE TABLE IF NOT EXISTS products (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    description TEXT,
-    price NUMERIC(10, 2) NOT NULL CHECK (price > 0),
-    category_id UUID REFERENCES categories(id) NOT NULL,
-    image_url TEXT,
-    stock INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
-    created_at TIMESTAMPTZ DEFAULT now(),
-    updated_at TIMESTAMPTZ DEFAULT now()
-);
+create index IF not exists categories_parent_idx on public.categories using btree (parent_id) TABLESPACE pg_default;
 
--- Create carts table
-CREATE TABLE IF NOT EXISTS carts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) UNIQUE NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT now(),
-    updated_at TIMESTAMPTZ DEFAULT now()
-);
 
--- Create cart_items table
-CREATE TABLE IF NOT EXISTS cart_items (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cart_id UUID REFERENCES carts(id) NOT NULL,
-    product_id UUID REFERENCES products(id) NOT NULL,
-    quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
-    created_at TIMESTAMPTZ DEFAULT now(),
-    UNIQUE(cart_id, product_id)
-);
+create table public.products (
+  id uuid not null default gen_random_uuid (),
+  name text not null,
+  description text null,
+  price numeric(10, 2) not null,
+  category_id uuid not null,
+  image_url text null,
+  stock integer not null default 0,
+  created_at timestamp with time zone null default now(),
+  updated_at timestamp with time zone null default now(),
+  constraint products_pkey primary key (id),
+  constraint products_category_id_fkey foreign KEY (category_id) references categories (id) on delete RESTRICT,
+  constraint products_price_check check ((price > (0)::numeric)),
+  constraint products_stock_check check ((stock >= 0))
+) TABLESPACE pg_default;
 
--- Create orders table (for future expansion)
-CREATE TABLE IF NOT EXISTS orders (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) NOT NULL,
-    total_amount NUMERIC(10, 2) NOT NULL,
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'cancelled')),
-    created_at TIMESTAMPTZ DEFAULT now()
-);
+create index IF not exists products_category_idx on public.products using btree (category_id) TABLESPACE pg_default;
 
--- Create order_items table (for future expansion)
-CREATE TABLE IF NOT EXISTS order_items (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id UUID REFERENCES orders(id) NOT NULL,
-    product_id UUID REFERENCES products(id) NOT NULL,
-    quantity INTEGER NOT NULL,
-    price_at_purchase NUMERIC(10, 2) NOT NULL
-);
+create trigger trg_products_updated_at BEFORE
+update on products for EACH row
+execute FUNCTION set_updated_at ();
 
--- Enable Row Level Security on all tables
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE carts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for users table
-CREATE POLICY "Users can view their own profile" ON users
-    FOR SELECT USING (auth.uid() = id);
+create table public.users (
+  id uuid not null default gen_random_uuid (),
+  email text not null,
+  password_hash text not null,
+  role text not null default 'customer'::text,
+  created_at timestamp with time zone null default now(),
+  updated_at timestamp with time zone null default now(),
+  constraint users_pkey primary key (id),
+  constraint users_email_key unique (email),
+  constraint users_role_check check (
+    (
+      role = any (array['customer'::text, 'admin'::text])
+    )
+  )
+) TABLESPACE pg_default;
 
-CREATE POLICY "Users can update their own profile" ON users
-    FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY "Anyone can register" ON users
-    FOR INSERT WITH CHECK (true);
+create table public.order_items (
+  id uuid not null default gen_random_uuid (),
+  order_id uuid not null,
+  product_id uuid not null,
+  quantity integer not null,
+  price_at_purchase numeric(10, 2) not null,
+  constraint order_items_pkey primary key (id),
+  constraint order_items_order_id_fkey foreign KEY (order_id) references orders (id) on delete CASCADE,
+  constraint order_items_product_id_fkey foreign KEY (product_id) references products (id),
+  constraint order_items_price_check check ((price_at_purchase >= (0)::numeric)),
+  constraint order_items_quantity_check check ((quantity > 0))
+) TABLESPACE pg_default;
 
--- Create RLS policies for categories table
-CREATE POLICY "Anyone can view categories" ON categories
-    FOR SELECT USING (true);
+create index IF not exists idx_order_items_order_id on public.order_items using btree (order_id) TABLESPACE pg_default;
 
--- Create RLS policies for products table
-CREATE POLICY "Anyone can view products" ON products
-    FOR SELECT USING (true);
+create index IF not exists idx_order_items_product_id on public.order_items using btree (product_id) TABLESPACE pg_default;
 
--- Create RLS policies for carts table
-CREATE POLICY "Users can manage their own cart" ON carts
-    FOR ALL USING (auth.uid() = user_id);
 
--- Create RLS policies for cart_items table
-CREATE POLICY "Users can manage their own cart items" ON cart_items
-    FOR ALL USING (
-        auth.uid() = (SELECT user_id FROM carts WHERE id = cart_id)
-    );
+create table public.orders (
+  id uuid not null default gen_random_uuid (),
+  user_id uuid not null,
+  total_amount numeric(10, 2) not null,
+  status text not null default 'pending'::text,
+  shipping_address text null,
+  shipping_city text null,
+  shipping_state text null,
+  shipping_zip_code text null,
+  shipping_country text null,
+  shipping_phone text null,
+  created_at timestamp with time zone null default now(),
+  constraint orders_pkey primary key (id),
+  constraint orders_user_id_fkey foreign KEY (user_id) references users (id) on delete CASCADE,
+  constraint orders_status_check check (
+    (
+      status = any (
+        array[
+          'pending'::text,
+          'pending_payment'::text,
+          'completed'::text,
+          'cancelled'::text
+        ]
+      )
+    )
+  ),
+  constraint orders_total_amount_check check ((total_amount >= (0)::numeric))
+) TABLESPACE pg_default;
 
--- Create RLS policies for orders table
-CREATE POLICY "Users can view their own orders" ON orders
-    FOR SELECT USING (auth.uid() = user_id);
+create index IF not exists idx_orders_user_id on public.orders using btree (user_id) TABLESPACE pg_default;
 
--- Create RLS policies for order_items table
-CREATE POLICY "Users can view their own order items" ON order_items
-    FOR SELECT USING (
-        auth.uid() = (SELECT user_id FROM orders WHERE id = order_id)
-    );
-
--- Insert default categories
-INSERT INTO categories (name) VALUES 
-    ('Hair Care'),
-    ('Skin Care'),
-    ('Body Care'),
-    ('Wellness'),
-    ('Gifting')
-ON CONFLICT (name) DO NOTHING;
-
--- Insert sample products (you can modify or remove these)
-DO $$
-DECLARE
-    hair_care_id UUID;
-    skin_care_id UUID;
-    body_care_id UUID;
-    wellness_id UUID;
-    gifting_id UUID;
-BEGIN
-    -- Get category IDs
-    SELECT id INTO hair_care_id FROM categories WHERE name = 'Hair Care';
-    SELECT id INTO skin_care_id FROM categories WHERE name = 'Skin Care';
-    SELECT id INTO body_care_id FROM categories WHERE name = 'Body Care';
-    SELECT id INTO wellness_id FROM categories WHERE name = 'Wellness';
-    SELECT id INTO gifting_id FROM categories WHERE name = 'Gifting';
-
-    -- Insert sample products
-    INSERT INTO products (name, description, price, category_id, stock) VALUES
-        ('Ayurvedic Hair Oil', 'Nourishing hair oil with natural herbs for healthy, strong hair', 24.99, hair_care_id, 50),
-        ('Herbal Shampoo', 'Gentle cleansing shampoo with ayurvedic ingredients', 18.99, hair_care_id, 75),
-        ('Natural Face Cream', 'Moisturizing face cream with turmeric and neem', 32.99, skin_care_id, 40),
-        ('Ayurvedic Face Wash', 'Deep cleansing face wash with natural extracts', 16.99, skin_care_id, 60),
-        ('Body Massage Oil', 'Relaxing massage oil with essential herbs', 28.99, body_care_id, 35),
-        ('Herbal Body Scrub', 'Exfoliating body scrub with natural ingredients', 22.99, body_care_id, 45),
-        ('Wellness Tea Blend', 'Immunity boosting herbal tea blend', 14.99, wellness_id, 100),
-        ('Ayurvedic Supplements', 'Daily wellness supplements with natural herbs', 39.99, wellness_id, 80),
-        ('Gift Set - Hair Care', 'Complete hair care gift set with oil and shampoo', 49.99, gifting_id, 25),
-        ('Wellness Gift Box', 'Curated wellness products in a beautiful gift box', 79.99, gifting_id, 20)
-    ON CONFLICT DO NOTHING;
-END $$;
-
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);
-CREATE INDEX IF NOT EXISTS idx_cart_items_cart_id ON cart_items(cart_id);
-CREATE INDEX IF NOT EXISTS idx_cart_items_product_id ON cart_items(product_id);
-CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
-CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
-
--- Create updated_at trigger function
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Create triggers for updated_at columns
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_carts_updated_at BEFORE UPDATE ON carts
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Create storage bucket for product images (this needs to be done via Supabase dashboard or API)
--- INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true);
-
-COMMENT ON TABLE users IS 'User accounts and authentication information';
-COMMENT ON TABLE categories IS 'Product categories for organizing products';
-COMMENT ON TABLE products IS 'Product catalog with details and pricing';
-COMMENT ON TABLE carts IS 'User shopping carts';
-COMMENT ON TABLE cart_items IS 'Items in user shopping carts';
-COMMENT ON TABLE orders IS 'Customer orders (for future expansion)';
-COMMENT ON TABLE order_items IS 'Line items for customer orders (for future expansion)';
-
--- Grant necessary permissions (adjust as needed)
--- GRANT USAGE ON SCHEMA public TO anon, authenticated;
--- GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
--- GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+create index IF not exists idx_orders_created_at on public.orders using btree (created_at) TABLESPACE pg_default;

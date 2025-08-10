@@ -17,9 +17,11 @@ import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Profile from './pages/Profile';
+import Profile from './pages/Profile.jsx';
+import AdminOrders from './pages/admin/AdminOrders.jsx';
 import AboutUs from './pages/AboutUs';
 import Stores from './pages/Stores';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -27,6 +29,7 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminParentCategories from './pages/admin/AdminParentCategories';
 import AdminChildCategories from './pages/admin/AdminChildCategories';
 import AdminProductForm from './pages/admin/AdminProductForm';
+import ManageCategories from './pages/admin/ManageCategories';
 
 function App() {
   return (
@@ -57,6 +60,11 @@ function App() {
                     <Cart />
                   </ProtectedRoute>
                 } />
+                <Route path="/checkout" element={
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                } />
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <Profile />
@@ -75,6 +83,11 @@ function App() {
                     <AdminProducts />
                   </AdminRoute>
                 } />
+                <Route path="/admin/orders" element={
+                  <AdminRoute>
+                    <AdminOrders />
+                  </AdminRoute>
+                } />
                 <Route path="/admin/products/new" element={
                   <AdminRoute>
                     <AdminProductForm />
@@ -87,6 +100,11 @@ function App() {
                 } />
 
                 {/* Category Management */}
+                <Route path="/admin/categories/manage" element={
+                  <AdminRoute>
+                    <ManageCategories />
+                  </AdminRoute>
+                } />
                 <Route path="/admin/categories/parents" element={
                   <AdminRoute>
                     <AdminParentCategories />

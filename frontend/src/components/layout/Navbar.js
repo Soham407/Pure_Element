@@ -102,14 +102,34 @@ const Navbar = () => {
                         <Settings className="w-4 h-4 mr-2" />
                         Profile
                       </Link>
+                      <Link
+                        to="/profile#orders"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600"
+                      >
+                        My Orders
+                      </Link>
                       {isAdmin && (
-                        <Link
-                          to="/admin/dashboard"
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600"
-                        >
-                          <Package className="w-4 h-4 mr-2" />
-                          Admin Dashboard
-                        </Link>
+                        <>
+                          <Link
+                            to="/admin/dashboard"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600"
+                          >
+                            <Package className="w-4 h-4 mr-2" />
+                            Admin Dashboard
+                          </Link>
+                          <Link
+                            to="/admin/orders"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600"
+                          >
+                            Manage Orders
+                          </Link>
+                          <Link
+                            to="/admin/categories/manage"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600"
+                          >
+                            Manage Categories
+                          </Link>
+                        </>
                       )}
                       <button
                         onClick={handleLogout}

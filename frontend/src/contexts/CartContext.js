@@ -31,7 +31,7 @@ export const CartProvider = ({ children }) => {
     
     try {
       setLoading(true);
-      const response = await apiService.get('/cart');
+      const response = await apiService.cart.get();
       setCart(response.data.cart);
     } catch (error) {
       console.error('Failed to fetch cart:', error);
@@ -48,7 +48,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      await apiService.post('/cart/add', { productId, quantity });
+      await apiService.cart.add(productId, quantity);
       await fetchCart();
       toast.success('Item added to cart!');
       return { success: true };
@@ -63,7 +63,7 @@ export const CartProvider = ({ children }) => {
     if (!isAuthenticated) return { success: false };
 
     try {
-      await apiService.put(`/cart/update/${itemId}`, { quantity });
+      await apiService.cart.update(itemId, quantity);
       await fetchCart();
       toast.success('Cart updated!');
       return { success: true };
@@ -78,7 +78,7 @@ export const CartProvider = ({ children }) => {
     if (!isAuthenticated) return { success: false };
 
     try {
-      await apiService.delete(`/cart/remove/${itemId}`);
+      await apiService.cart.remove(itemId);
       await fetchCart();
       toast.success('Item removed from cart!');
       return { success: true };
@@ -93,7 +93,7 @@ export const CartProvider = ({ children }) => {
     if (!isAuthenticated) return { success: false };
 
     try {
-      await apiService.delete('/cart/clear');
+      await apiService.cart.clear();
       await fetchCart();
       toast.success('Cart cleared!');
       return { success: true };

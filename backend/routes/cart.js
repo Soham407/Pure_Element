@@ -84,15 +84,31 @@ router.post('/add', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Insufficient stock' });
     }
 
-    // Get user's cart
-    const { data: cart, error: cartError } = await supabaseAdmin
+    // Get user's cart or create one if it doesn't exist
+    let { data: cart, error: cartError } = await supabaseAdmin
       .from('carts')
       .select('id')
       .eq('user_id', userId)
       .maybeSingle();
 
-    if (cartError || !cart) {
-      return res.status(500).json({ error: 'Cart not found' });
+    if (cartError) {
+      console.error('Get cart error:', cartError);
+      return res.status(500).json({ error: 'Failed to fetch cart' });
+    }
+
+    // Create cart if it doesn't exist
+    if (!cart) {
+      const { data: newCart, error: createError } = await supabaseAdmin
+        .from('carts')
+        .insert([{ user_id: userId }])
+        .select('id')
+        .single();
+
+      if (createError) {
+        console.error('Create cart error:', createError);
+        return res.status(500).json({ error: 'Failed to create cart' });
+      }
+      cart = newCart;
     }
 
     // Check if item already exists in cart
@@ -229,15 +245,31 @@ router.delete('/clear', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Get user's cart
-    const { data: cart, error: cartError } = await supabaseAdmin
+    // Get user's cart or create one if it doesn't exist
+    let { data: cart, error: cartError } = await supabaseAdmin
       .from('carts')
       .select('id')
       .eq('user_id', userId)
       .maybeSingle();
 
-    if (cartError || !cart) {
-      return res.status(500).json({ error: 'Cart not found' });
+    if (cartError) {
+      console.error('Get cart error:', cartError);
+      return res.status(500).json({ error: 'Failed to fetch cart' });
+    }
+
+    // Create cart if it doesn't exist
+    if (!cart) {
+      const { data: newCart, error: createError } = await supabaseAdmin
+        .from('carts')
+        .insert([{ user_id: userId }])
+        .select('id')
+        .single();
+
+      if (createError) {
+        console.error('Create cart error:', createError);
+        return res.status(500).json({ error: 'Failed to create cart' });
+      }
+      cart = newCart;
     }
 
     // Delete all cart items
