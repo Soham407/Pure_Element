@@ -64,7 +64,7 @@ router.get('/:productId', async (req, res) => {
 });
 
 // POST /api/reviews/:productId - Create a new review for a product
-router.post('/:productId', auth, async (req, res) => {
+router.post('/:productId', auth.authenticateToken, async (req, res) => {
   try {
     const { productId } = req.params;
     const { rating, comment } = req.body;
@@ -183,7 +183,7 @@ router.post('/:productId', auth, async (req, res) => {
 });
 
 // PUT /api/reviews/:reviewId - Update an existing review
-router.put('/:reviewId', auth, async (req, res) => {
+router.put('/:reviewId', auth.authenticateToken, async (req, res) => {
   try {
     const { reviewId } = req.params;
     const { rating, comment } = req.body;
@@ -263,7 +263,7 @@ router.put('/:reviewId', auth, async (req, res) => {
 });
 
 // DELETE /api/reviews/:reviewId - Delete a review
-router.delete('/:reviewId', auth, async (req, res) => {
+router.delete('/:reviewId', auth.authenticateToken, async (req, res) => {
   try {
     const { reviewId } = req.params;
     const userId = req.user.id;

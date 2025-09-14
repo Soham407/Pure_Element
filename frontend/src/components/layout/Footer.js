@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Instagram, Youtube, Linkedin } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -20,14 +20,37 @@ const Footer = () => {
               for your holistic well-being.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
+              <a 
+                href="https://www.facebook.com/pureelementsnaturalkosmetik" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-primary-400 transition-colors"
+              >
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
+              <a 
+                href="https://www.instagram.com/pure_elements_naturkosmetik/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-primary-400 transition-colors"
+              >
                 <Instagram className="w-5 h-5" />
+              </a>
+              <a 
+                href="https://youtube.com/@PureElementsNaturkosmetik" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-primary-400 transition-colors"
+              >
+                <Youtube className="w-5 h-5" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/company/pure-elements-naturkosmetik/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-primary-400 transition-colors"
+              >
+                <Linkedin className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -47,14 +70,14 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/about" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <span className="text-gray-300 text-sm cursor-default">
                   Contact
-                </a>
+                </span>
               </li>
             </ul>
           </div>
@@ -64,29 +87,29 @@ const Footer = () => {
             <h3 className="text-lg font-semibold">Categories</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=hair-care" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
                   Hair Care
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=skin-care" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
                   Skin Care
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=body-care" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
                   Body Care
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=wellness" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
                   Wellness
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=gifting" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
                   Gifting
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -121,15 +144,15 @@ const Footer = () => {
               © 2024 Pure_element. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
+              <span className="text-gray-400 text-sm cursor-default">
                 Privacy Policy
-              </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
+              </span>
+              <span className="text-gray-400 text-sm cursor-default">
                 Terms of Service
-              </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
+              </span>
+              <span className="text-gray-400 text-sm cursor-default">
                 Return Policy
-              </a>
+              </span>
             </div>
           </div>
         </div>
