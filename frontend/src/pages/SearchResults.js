@@ -1,105 +1,52 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import QuickViewModal from '../components/QuickViewModal';
 import { 
   ShoppingCart, 
   Star, 
-  Filter, 
   Search, 
   Grid, 
   List,
-  Eye
+  SortAsc,
+  SortDesc,
+  ArrowLeft
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const Products = () => {
+const SearchResults = () => {
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
   const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
 
-  const fetchCategories = async () => {
-    try {
-      const response = await apiService.categories.getAll();
-      setCategories(response.data.categories);
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
-    }
-  };
-
-  const fetchProducts = useCallback(async () => {
-    try {
-      setLoading(true);
-      let response;
-      
-      if (selectedCategory) {
-        response = await apiService.products.getByCategory(selectedCategory);
-      } else {
-        response = await apiService.products.getAll();
-      }
-      
-      setProducts(response.data.products);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-      toast.error('Failed to load products');
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedCategory]);
-
   useEffect(() => {
-    fetchCategories();
-    const categoryParam = searchParams.get('category');
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
+    const query = searchParams.get('q');
+    if (query) {
+      setSearchQuery(query);
+      fetchSearchResults(query);
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) {
-      fetchProducts();
-      return;
-    }
-
+  const fetchSearchResults = async (query) => {
     try {
       setLoading(true);
-      const response = await apiService.products.search(searchQuery);
+      const response = await apiService.products.search(query);
       setProducts(response.data.products);
     } catch (error) {
       console.error('Search failed:', error);
       toast.error('Search failed');
+      setProducts([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCategoryChange = (categoryId) => {
-    setSelectedCategory(categoryId);
-    setSearchQuery('');
-    if (categoryId) {
-      setSearchParams({ category: categoryId });
-    } else {
-      setSearchParams({});
     }
   };
 
@@ -109,16 +56,6 @@ const Products = () => {
       return;
     }
     await addToCart(productId, 1);
-  };
-
-  const handleQuickView = (product) => {
-    setQuickViewProduct(product);
-    setIsQuickViewOpen(true);
-  };
-
-  const handleCloseQuickView = () => {
-    setIsQuickViewOpen(false);
-    setQuickViewProduct(null);
   };
 
   const sortedProducts = [...products].sort((a, b) => {
@@ -149,18 +86,25 @@ const Products = () => {
     }
   });
 
-  const selectedCategoryName = categories.find(cat => cat.id === selectedCategory)?.name || 'All Products';
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex items-center mb-4">
+            <Link 
+              to="/products" 
+              className="flex items-center text-primary-600 hover:text-primary-700 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Products
+            </Link>
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {selectedCategoryName}
+            Search Results
           </h1>
           <p className="text-gray-600">
-            Discover our premium collection of Ayurvedic beauty and wellness products
+            {searchQuery ? `Results for "${searchQuery}"` : 'Search for products'}
           </p>
         </div>
 
@@ -168,7 +112,12 @@ const Products = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
-            <form onSubmit={handleSearch} className="flex-1">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery.trim()) {
+                fetchSearchResults(searchQuery.trim());
+              }
+            }} className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
@@ -186,36 +135,10 @@ const Products = () => {
                 </button>
               </div>
             </form>
-
-            {/* Filter Toggle (Mobile) */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden btn-outline flex items-center space-x-2"
-            >
-              <Filter className="w-4 h-4" />
-              <span>Filters</span>
-            </button>
           </div>
 
           {/* Filters */}
-          <div className={`mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ${showFilters ? 'block' : 'hidden lg:grid'}`}>
-            {/* Category Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="input-field"
-              >
-                <option value="">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Sort By */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
@@ -267,18 +190,8 @@ const Products = () => {
         {/* Results Count */}
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">
-            Showing {sortedProducts.length} products
+            {loading ? 'Searching...' : `Found ${sortedProducts.length} products`}
           </p>
-          <button
-            onClick={() => {
-              setSelectedCategory('');
-              setSearchQuery('');
-              setSearchParams({});
-            }}
-            className="text-primary-600 hover:text-primary-700 text-sm"
-          >
-            Clear all filters
-          </button>
         </div>
 
         {/* Products Grid/List */}
@@ -293,18 +206,14 @@ const Products = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
             <p className="text-gray-600 mb-4">
-              Try adjusting your search or filter criteria
+              {searchQuery ? `No products found for "${searchQuery}"` : 'Try searching for something else'}
             </p>
-            <button
-              onClick={() => {
-                setSelectedCategory('');
-                setSearchQuery('');
-                setSearchParams({});
-              }}
+            <Link
+              to="/products"
               className="btn-primary"
             >
-              View All Products
-            </button>
+              Browse All Products
+            </Link>
           </div>
         ) : (
           <div className={viewMode === 'grid' 
@@ -359,13 +268,6 @@ const Products = () => {
                       Category: {product.categories?.name}
                     </span>
                     <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleQuickView(product)}
-                        className="btn-outline text-sm px-4 py-2 flex items-center space-x-1"
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span>Quick View</span>
-                      </button>
                       <Link
                         to={`/products/${product.id}`}
                         className="btn-outline text-sm px-4 py-2"
@@ -387,15 +289,8 @@ const Products = () => {
           </div>
         )}
       </div>
-
-      {/* Quick View Modal */}
-      <QuickViewModal
-        product={quickViewProduct}
-        isOpen={isQuickViewOpen}
-        onClose={handleCloseQuickView}
-      />
     </div>
   );
 };
 
-export default Products;
+export default SearchResults;

@@ -7,59 +7,115 @@ const Stores = () => {
   const stores = [
     {
       id: 1,
-      name: "Pure Elements - Mumbai Central",
-      address: "123 Wellness Street, Bandra West, Mumbai, Maharashtra 400050",
-      phone: "+91 98765 43210",
-      email: "mumbai@pureelements.com",
+      name: "Mahabaleshwar - New",
+      address: "134 Dr. Sabne Road, Main Market, Mahabaleshwar",
+      phone: "9371007202",
+      email: "mahabaleshwar@pureelements.in",
       hours: {
         weekdays: "9:00 AM - 8:00 PM",
         saturday: "9:00 AM - 9:00 PM",
         sunday: "10:00 AM - 7:00 PM"
       },
       image: "/api/placeholder/400/300",
-      specialties: ["Ayurvedic Consultation", "Custom Formulations", "Wellness Workshops"]
+      specialties: ["Ayurvedic Products", "Natural Skincare", "Wellness Consultation"]
     },
     {
       id: 2,
-      name: "Pure Elements - Delhi Flagship",
-      address: "456 Ayurveda Plaza, Connaught Place, New Delhi, Delhi 110001",
-      phone: "+91 98765 43211",
-      email: "delhi@pureelements.com",
+      name: "Mahabaleshwar",
+      address: "Near Police Station, Main Market, Mahabaleshwar",
+      phone: "9371007201",
+      email: "mahabaleshwar@pureelements.in",
       hours: {
         weekdays: "9:00 AM - 8:00 PM",
         saturday: "9:00 AM - 9:00 PM",
         sunday: "10:00 AM - 7:00 PM"
       },
       image: "/api/placeholder/400/300",
-      specialties: ["Panchakarma Treatments", "Herbal Medicine", "Yoga Classes"]
+      specialties: ["Traditional Ayurveda", "Herbal Remedies", "Natural Cosmetics"]
     },
     {
       id: 3,
-      name: "Pure Elements - Bangalore Tech Hub",
-      address: "789 Innovation Drive, Koramangala, Bangalore, Karnataka 560034",
-      phone: "+91 98765 43212",
-      email: "bangalore@pureelements.com",
+      name: "Koregaon Park, Pune",
+      address: "Sunderban Resort, Lane 1, Koregaon Park, Pune",
+      phone: "9371007205",
+      email: "pune@pureelements.in",
       hours: {
         weekdays: "9:00 AM - 8:00 PM",
         saturday: "9:00 AM - 9:00 PM",
         sunday: "10:00 AM - 7:00 PM"
       },
       image: "/api/placeholder/400/300",
-      specialties: ["Digital Wellness", "Corporate Wellness Programs", "Stress Management"]
+      specialties: ["Premium Skincare", "Ayurvedic Consultation", "Wellness Products"]
     },
     {
       id: 4,
-      name: "Pure Elements - Chennai Heritage",
-      address: "321 Traditional Lane, T. Nagar, Chennai, Tamil Nadu 600017",
-      phone: "+91 98765 43213",
-      email: "chennai@pureelements.com",
+      name: "Westend Mall, Aundh, Pune",
+      address: "HGS 25. Westend Mall. Parihar Chowk, Aundh, Pune",
+      phone: "9371007207",
+      email: "aundh@pureelements.in",
+      hours: {
+        weekdays: "10:00 AM - 10:00 PM",
+        saturday: "10:00 AM - 10:00 PM",
+        sunday: "10:00 AM - 10:00 PM"
+      },
+      image: "/api/placeholder/400/300",
+      specialties: ["Mall Location", "Full Product Range", "Easy Access"]
+    },
+    {
+      id: 5,
+      name: "Phoenix Marketcity, Viman Nagar, Pune",
+      address: "Lower Ground Floor, Opp. Timezone. Phoenix Mall, Viman Nagar, Pune",
+      phone: "9371007204",
+      email: "viman@pureelements.in",
+      hours: {
+        weekdays: "10:00 AM - 10:00 PM",
+        saturday: "10:00 AM - 10:00 PM",
+        sunday: "10:00 AM - 10:00 PM"
+      },
+      image: "/api/placeholder/400/300",
+      specialties: ["Shopping Mall", "Complete Range", "Family Shopping"]
+    },
+    {
+      id: 6,
+      name: "The Pavillion Mall, Shivajinagar, Pune",
+      address: "Second Floor. The Pavillion Mall, Senapati Bapat Road, Shivajinagar, Pune",
+      phone: "9371007203",
+      email: "shivajinagar@pureelements.in",
+      hours: {
+        weekdays: "10:00 AM - 10:00 PM",
+        saturday: "10:00 AM - 10:00 PM",
+        sunday: "10:00 AM - 10:00 PM"
+      },
+      image: "/api/placeholder/400/300",
+      specialties: ["Mall Outlet", "Premium Location", "Full Service"]
+    },
+    {
+      id: 7,
+      name: "Phoenix Mall of Millennium, Wakad, Pune",
+      address: "Shop No S-51, Second Floor, Phoenix Mall of the Millennium, Behind Sayaji Hotel, Wakad, Pune - 411057",
+      phone: "9371007206",
+      email: "wakad@pureelements.in",
+      hours: {
+        weekdays: "10:00 AM - 10:00 PM",
+        saturday: "10:00 AM - 10:00 PM",
+        sunday: "10:00 AM - 10:00 PM"
+      },
+      image: "/api/placeholder/400/300",
+      specialties: ["Modern Mall", "Latest Products", "Expert Consultation"]
+    },
+    {
+      id: 8,
+      name: "Andheri (W), Mumbai",
+      address: "Shop No. 1705, Building. 43, Shanti Nagar, D.N.Nagar, Andheri (W), Mumbai, Maharashtra 400053",
+      phone: "91373 03060",
+      email: "mumbai@pureelements.in",
       hours: {
         weekdays: "9:00 AM - 8:00 PM",
         saturday: "9:00 AM - 9:00 PM",
         sunday: "10:00 AM - 7:00 PM"
       },
       image: "/api/placeholder/400/300",
-      specialties: ["Traditional Siddha Medicine", "Herbal Skincare", "Meditation Classes"]
+      specialties: ["Mumbai Location", "Premium Products", "Personalized Service"]
     }
   ];
 
@@ -68,9 +124,9 @@ const Stores = () => {
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">Our Stores</h1>
-          <p className="text-xl md:text-2xl max-w-3xl mx-auto">
-            Visit our physical locations to experience Pure Elements products firsthand and consult with our wellness experts.
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">Pure Elements Flagship Stores</h1>
+          <p className="text-xl md:text-2xl max-w-4xl mx-auto">
+            Visit our physical locations to experience the promise of Ayurveda firsthand. Discover our authentic, natural products and get personalized wellness consultations from our experts.
           </p>
         </div>
       </div>
@@ -81,7 +137,7 @@ const Stores = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Find a Store Near You</h2>
             <p className="text-lg text-gray-600">
-              Experience our products in person and get personalized wellness consultations
+              Experience the power of natural ingredients and authentic Ayurvedic formulations at our stores across Maharashtra and Mumbai
             </p>
           </div>
 
@@ -162,7 +218,7 @@ const Stores = () => {
       {/* Services Section */}
       <div className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">In-Store Services</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">In-Store Experience</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -170,9 +226,9 @@ const Stores = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Personal Consultation</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Ayurvedic Consultation</h3>
               <p className="text-gray-600">
-                Get personalized wellness advice from our certified Ayurvedic practitioners and find the right products for your needs.
+                Get personalized advice from our wellness experts to find the right natural products for your skin and health needs.
               </p>
             </div>
             <div className="text-center">
@@ -183,7 +239,7 @@ const Stores = () => {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Product Testing</h3>
               <p className="text-gray-600">
-                Try our products before you buy. Test textures, scents, and formulations to ensure they're perfect for you.
+                Experience our natural formulations firsthand. Test textures, aromas, and feel the difference of pure Ayurvedic ingredients.
               </p>
             </div>
             <div className="text-center">
@@ -192,9 +248,9 @@ const Stores = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Educational Workshops</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Natural Living Education</h3>
               <p className="text-gray-600">
-                Join our regular workshops on Ayurvedic principles, wellness practices, and natural living techniques.
+                Learn about the power of natural ingredients, Ayurvedic principles, and how to incorporate wellness into your daily routine.
               </p>
             </div>
           </div>
@@ -270,7 +326,7 @@ const Stores = () => {
                   <span>Get Directions</span>
                 </button>
                 <button className="flex-1 border border-primary-600 text-primary-600 py-3 px-4 rounded-lg hover:bg-primary-50 transition-colors">
-                  Book Consultation
+                  Book Ayurvedic Consultation
                 </button>
               </div>
             </div>

@@ -91,6 +91,14 @@ export const apiService = {
     updateStatus: (orderId, status) => apiClient.patch(`/v1/orders/${orderId}/status`, { status }),
   },
 
+  // Reviews endpoints
+  reviews: {
+    getByProduct: (productId) => apiClient.get(`/reviews/${productId}`),
+    create: (productId, data) => apiClient.post(`/reviews/${productId}`, data),
+    update: (reviewId, data) => apiClient.put(`/reviews/${reviewId}`, data),
+    delete: (reviewId) => apiClient.delete(`/reviews/${reviewId}`),
+  },
+
   // Admin endpoints
   admin: {
     // Products

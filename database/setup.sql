@@ -127,3 +127,22 @@ create table public.orders (
 create index IF not exists idx_orders_user_id on public.orders using btree (user_id) TABLESPACE pg_default;
 
 create index IF not exists idx_orders_created_at on public.orders using btree (created_at) TABLESPACE pg_default;
+
+-- Reviews table
+create table public.reviews (
+  id uuid not null default gen_random_uuid (),
+  product_id uuid not null,
+  user_id uuid not null,
+  rating integer not null,
+  comment text null,
+  created_at timestamp with time zone null default now(),
+  constraint reviews_pkey primary key (id),
+  constraint reviews_product_id_fkey foreign KEY (product_id) references products (id) on delete CASCADE,
+  constraint reviews_user_id_fkey foreign KEY (user_id) references users (id) on delete CASCADE,
+  constraint reviews_rating_check check ((rating >= 1 and rating <= 5)),
+  constraint reviews_user_product_unique unique (user_id, product_id)
+) TABLESPACE pg_default;
+
+create index IF not exists idx_reviews_product_id on public.reviews using btree (product_id) TABLESPACE pg_default;
+create index IF not exists idx_reviews_user_id on public.reviews using btree (user_id) TABLESPACE pg_default;
+create index IF not exists idx_reviews_created_at on public.reviews using btree (created_at) TABLESPACE pg_default;

@@ -16,6 +16,7 @@ import AdminRoute from './components/auth/AdminRoute';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import SearchResults from './pages/SearchResults';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
@@ -49,6 +50,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
+                <Route path="/search" element={<SearchResults />} />
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/stores" element={<Stores />} />
                 <Route path="/login" element={<Login />} />
