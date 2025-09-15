@@ -21,7 +21,6 @@ create table public.carts (
   constraint carts_user_id_fkey foreign KEY (user_id) references users (id)
 ) TABLESPACE pg_default;
 
-
 create table public.categories (
   id uuid not null default gen_random_uuid (),
   name text not null,
@@ -36,6 +35,55 @@ create table public.categories (
 
 create index IF not exists categories_parent_idx on public.categories using btree (parent_id) TABLESPACE pg_default;
 
+create table public.order_items (
+  id uuid not null default gen_random_uuid (),
+  order_id uuid not null,
+  product_id uuid not null,
+  quantity integer not null,
+  price_at_purchase numeric(10, 2) not null,
+  constraint order_items_pkey primary key (id),
+  constraint order_items_order_id_fkey foreign KEY (order_id) references orders (id) on delete CASCADE,
+  constraint order_items_product_id_fkey foreign KEY (product_id) references products (id),
+  constraint order_items_price_check check ((price_at_purchase >= (0)::numeric)),
+  constraint order_items_quantity_check check ((quantity > 0))
+) TABLESPACE pg_default;
+
+create index IF not exists idx_order_items_order_id on public.order_items using btree (order_id) TABLESPACE pg_default;
+
+create index IF not exists idx_order_items_product_id on public.order_items using btree (product_id) TABLESPACE pg_default;
+
+create table public.orders (
+  id uuid not null default gen_random_uuid (),
+  user_id uuid not null,
+  total_amount numeric(10, 2) not null,
+  status text not null default 'pending'::text,
+  created_at timestamp with time zone null default now(),
+  shipping_address text null,
+  shipping_city text null,
+  shipping_state text null,
+  shipping_zip_code text null,
+  shipping_country text null,
+  shipping_phone text null,
+  constraint orders_pkey primary key (id),
+  constraint orders_user_id_fkey foreign KEY (user_id) references users (id) on delete CASCADE,
+  constraint orders_status_check check (
+    (
+      status = any (
+        array[
+          'pending'::text,
+          'pending_payment'::text,
+          'completed'::text,
+          'cancelled'::text
+        ]
+      )
+    )
+  ),
+  constraint orders_total_amount_check check ((total_amount >= (0)::numeric))
+) TABLESPACE pg_default;
+
+create index IF not exists idx_orders_user_id on public.orders using btree (user_id) TABLESPACE pg_default;
+
+create index IF not exists idx_orders_created_at on public.orders using btree (created_at) TABLESPACE pg_default;
 
 create table public.products (
   id uuid not null default gen_random_uuid (),
@@ -59,6 +107,30 @@ create trigger trg_products_updated_at BEFORE
 update on products for EACH row
 execute FUNCTION set_updated_at ();
 
+create table public.reviews (
+  id uuid not null default gen_random_uuid (),
+  product_id uuid not null,
+  user_id uuid not null,
+  rating integer not null,
+  comment text null,
+  created_at timestamp with time zone null default now(),
+  constraint reviews_pkey primary key (id),
+  constraint reviews_user_product_unique unique (user_id, product_id),
+  constraint reviews_product_id_fkey foreign KEY (product_id) references products (id) on delete CASCADE,
+  constraint reviews_user_id_fkey foreign KEY (user_id) references users (id) on delete CASCADE,
+  constraint reviews_rating_check check (
+    (
+      (rating >= 1)
+      and (rating <= 5)
+    )
+  )
+) TABLESPACE pg_default;
+
+create index IF not exists idx_reviews_product_id on public.reviews using btree (product_id) TABLESPACE pg_default;
+
+create index IF not exists idx_reviews_user_id on public.reviews using btree (user_id) TABLESPACE pg_default;
+
+create index IF not exists idx_reviews_created_at on public.reviews using btree (created_at) TABLESPACE pg_default;
 
 create table public.users (
   id uuid not null default gen_random_uuid (),
@@ -75,74 +147,3 @@ create table public.users (
     )
   )
 ) TABLESPACE pg_default;
-
-
-create table public.order_items (
-  id uuid not null default gen_random_uuid (),
-  order_id uuid not null,
-  product_id uuid not null,
-  quantity integer not null,
-  price_at_purchase numeric(10, 2) not null,
-  constraint order_items_pkey primary key (id),
-  constraint order_items_order_id_fkey foreign KEY (order_id) references orders (id) on delete CASCADE,
-  constraint order_items_product_id_fkey foreign KEY (product_id) references products (id),
-  constraint order_items_price_check check ((price_at_purchase >= (0)::numeric)),
-  constraint order_items_quantity_check check ((quantity > 0))
-) TABLESPACE pg_default;
-
-create index IF not exists idx_order_items_order_id on public.order_items using btree (order_id) TABLESPACE pg_default;
-
-create index IF not exists idx_order_items_product_id on public.order_items using btree (product_id) TABLESPACE pg_default;
-
-
-create table public.orders (
-  id uuid not null default gen_random_uuid (),
-  user_id uuid not null,
-  total_amount numeric(10, 2) not null,
-  status text not null default 'pending'::text,
-  shipping_address text null,
-  shipping_city text null,
-  shipping_state text null,
-  shipping_zip_code text null,
-  shipping_country text null,
-  shipping_phone text null,
-  created_at timestamp with time zone null default now(),
-  constraint orders_pkey primary key (id),
-  constraint orders_user_id_fkey foreign KEY (user_id) references users (id) on delete CASCADE,
-  constraint orders_status_check check (
-    (
-      status = any (
-        array[
-          'pending'::text,
-          'pending_payment'::text,
-          'completed'::text,
-          'cancelled'::text
-        ]
-      )
-    )
-  ),
-  constraint orders_total_amount_check check ((total_amount >= (0)::numeric))
-) TABLESPACE pg_default;
-
-create index IF not exists idx_orders_user_id on public.orders using btree (user_id) TABLESPACE pg_default;
-
-create index IF not exists idx_orders_created_at on public.orders using btree (created_at) TABLESPACE pg_default;
-
--- Reviews table
-create table public.reviews (
-  id uuid not null default gen_random_uuid (),
-  product_id uuid not null,
-  user_id uuid not null,
-  rating integer not null,
-  comment text null,
-  created_at timestamp with time zone null default now(),
-  constraint reviews_pkey primary key (id),
-  constraint reviews_product_id_fkey foreign KEY (product_id) references products (id) on delete CASCADE,
-  constraint reviews_user_id_fkey foreign KEY (user_id) references users (id) on delete CASCADE,
-  constraint reviews_rating_check check ((rating >= 1 and rating <= 5)),
-  constraint reviews_user_product_unique unique (user_id, product_id)
-) TABLESPACE pg_default;
-
-create index IF not exists idx_reviews_product_id on public.reviews using btree (product_id) TABLESPACE pg_default;
-create index IF not exists idx_reviews_user_id on public.reviews using btree (user_id) TABLESPACE pg_default;
-create index IF not exists idx_reviews_created_at on public.reviews using btree (created_at) TABLESPACE pg_default;
