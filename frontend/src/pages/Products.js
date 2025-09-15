@@ -152,35 +152,36 @@ const Products = () => {
   const selectedCategoryName = categories.find(cat => cat.id === selectedCategory)?.name || 'All Products';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-sage-50">
+      <div className="container-custom py-12">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-12 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 mb-4">
             {selectedCategoryName}
           </h1>
-          <p className="text-gray-600">
-            Discover our premium collection of Ayurvedic beauty and wellness products
+          <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+            Discover our premium collection of Ayurvedic beauty and wellness products, 
+            carefully curated for your natural beauty journey.
           </p>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="card-elevated p-8 mb-12">
+          <div className="flex flex-col lg:flex-row gap-6">
             {/* Search */}
             <form onSubmit={handleSearch} className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Search products..."
+                  placeholder="Search for natural beauty products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-field pl-10 pr-20"
+                  className="w-full pl-12 pr-24 py-4 border border-neutral-200 rounded-full focus:ring-2 focus:ring-primary-500 focus:outline-none focus:border-primary-500 bg-neutral-50 transition-all duration-200"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-primary text-sm px-4 py-1"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-primary text-sm px-6 py-2"
                 >
                   Search
                 </button>
@@ -190,22 +191,22 @@ const Products = () => {
             {/* Filter Toggle (Mobile) */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden btn-outline flex items-center space-x-2"
+              className="lg:hidden btn-outline flex items-center space-x-2 px-6 py-4"
             >
-              <Filter className="w-4 h-4" />
+              <Filter className="w-5 h-5" />
               <span>Filters</span>
             </button>
           </div>
 
           {/* Filters */}
-          <div className={`mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ${showFilters ? 'block' : 'hidden lg:grid'}`}>
+          <div className={`mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ${showFilters ? 'block' : 'hidden lg:grid'}`}>
             {/* Category Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <label className="block text-lg font-semibold text-neutral-700 mb-3">Category</label>
               <select
                 value={selectedCategory}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="input-field"
+                className="w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 font-medium"
               >
                 <option value="">All Categories</option>
                 {categories.map((category) => (
@@ -218,11 +219,11 @@ const Products = () => {
 
             {/* Sort By */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+              <label className="block text-lg font-semibold text-neutral-700 mb-3">Sort By</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="input-field"
+                className="w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 font-medium"
               >
                 <option value="name">Name</option>
                 <option value="price">Price</option>
@@ -232,11 +233,11 @@ const Products = () => {
 
             {/* Sort Order */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Order</label>
+              <label className="block text-lg font-semibold text-neutral-700 mb-3">Order</label>
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                className="input-field"
+                className="w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 font-medium"
               >
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
@@ -245,19 +246,27 @@ const Products = () => {
 
             {/* View Mode */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">View</label>
-              <div className="flex space-x-2">
+              <label className="block text-lg font-semibold text-neutral-700 mb-3">View</label>
+              <div className="flex space-x-3">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg border ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600'}`}
+                  className={`p-3 rounded-lg border-2 transition-all duration-200 ${
+                    viewMode === 'grid' 
+                      ? 'bg-primary-600 text-white border-primary-600 shadow-lg' 
+                      : 'bg-white text-neutral-600 border-neutral-200 hover:border-primary-300'
+                  }`}
                 >
-                  <Grid className="w-4 h-4" />
+                  <Grid className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg border ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600'}`}
+                  className={`p-3 rounded-lg border-2 transition-all duration-200 ${
+                    viewMode === 'list' 
+                      ? 'bg-primary-600 text-white border-primary-600 shadow-lg' 
+                      : 'bg-white text-neutral-600 border-neutral-200 hover:border-primary-300'
+                  }`}
                 >
-                  <List className="w-4 h-4" />
+                  <List className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -265,9 +274,9 @@ const Products = () => {
         </div>
 
         {/* Results Count */}
-        <div className="flex justify-between items-center mb-6">
-          <p className="text-gray-600">
-            Showing {sortedProducts.length} products
+        <div className="flex justify-between items-center mb-8">
+          <p className="text-lg text-neutral-600 font-medium">
+            Showing <span className="text-primary-600 font-bold">{sortedProducts.length}</span> products
           </p>
           <button
             onClick={() => {
@@ -275,7 +284,7 @@ const Products = () => {
               setSearchQuery('');
               setSearchParams({});
             }}
-            className="text-primary-600 hover:text-primary-700 text-sm"
+            className="text-primary-600 hover:text-primary-700 text-lg font-medium transition-colors duration-200"
           >
             Clear all filters
           </button>
@@ -283,17 +292,17 @@ const Products = () => {
 
         {/* Products Grid/List */}
         {loading ? (
-          <div className="flex justify-center py-12">
+          <div className="flex justify-center py-16">
             <LoadingSpinner size="lg" />
           </div>
         ) : sortedProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-12 h-12 text-gray-400" />
+          <div className="text-center py-16">
+            <div className="w-32 h-32 bg-gradient-to-br from-primary-100 to-sage-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search className="w-16 h-16 text-primary-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600 mb-4">
-              Try adjusting your search or filter criteria
+            <h3 className="text-2xl font-semibold text-neutral-900 mb-4">No products found</h3>
+            <p className="text-lg text-neutral-600 mb-8 max-w-md mx-auto">
+              Try adjusting your search or filter criteria to find what you're looking for
             </p>
             <button
               onClick={() => {
@@ -301,67 +310,68 @@ const Products = () => {
                 setSearchQuery('');
                 setSearchParams({});
               }}
-              className="btn-primary"
+              className="btn-primary text-lg px-8 py-4"
             >
               View All Products
             </button>
           </div>
         ) : (
           <div className={viewMode === 'grid' 
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-            : 'space-y-4'
+            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'
+            : 'space-y-6'
           }>
-            {sortedProducts.map((product) => (
+            {sortedProducts.map((product, index) => (
               <div
                 key={product.id}
                 className={viewMode === 'grid' 
-                  ? 'card-hover p-6 group'
-                  : 'card-hover p-6 flex flex-col md:flex-row gap-6'
+                  ? 'product-card p-6 group animate-fade-in'
+                  : 'product-card p-6 flex flex-col md:flex-row gap-6 group animate-fade-in'
                 }
+                style={{animationDelay: `${index * 100}ms`}}
               >
                 <div className={viewMode === 'grid' 
-                  ? 'aspect-w-1 aspect-h-1 mb-4 overflow-hidden rounded-lg'
+                  ? 'aspect-w-1 aspect-h-1 mb-6 overflow-hidden rounded-2xl'
                   : 'w-full md:w-48 flex-shrink-0'
                 }>
                   <img
                     src={product.image_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
                     alt={product.name}
                     className={viewMode === 'grid'
-                      ? 'w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200'
-                      : 'w-full h-48 md:h-full object-cover rounded-lg'
+                      ? 'product-image'
+                      : 'w-full h-48 md:h-full object-cover rounded-2xl'
                     }
                   />
                 </div>
                 
-                <div className={viewMode === 'grid' ? 'space-y-2' : 'flex-1 space-y-2'}>
+                <div className={viewMode === 'grid' ? 'space-y-4' : 'flex-1 space-y-4'}>
                   <div className="flex items-start justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                    <h3 className="text-xl font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors duration-200">
                       {product.name}
                     </h3>
-                    <span className="text-xl font-bold text-primary-600">
+                    <span className="price">
                       ${product.price}
                     </span>
                   </div>
                   
-                  <p className="text-gray-600 text-sm line-clamp-2">
+                  <p className="text-neutral-600 text-sm line-clamp-2 leading-relaxed">
                     {product.description}
                   </p>
                   
-                  <div className="flex items-center space-x-1">
+                  <div className="rating">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current text-yellow-400" />
+                      <Star key={i} className="star" />
                     ))}
-                    <span className="text-sm text-gray-500 ml-2">(4.8)</span>
+                    <span className="text-sm text-neutral-500 ml-2 font-medium">(4.8)</span>
                   </div>
                   
                   <div className="flex items-center justify-between pt-4">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-neutral-500 font-medium">
                       Category: {product.categories?.name}
                     </span>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-3">
                       <button
                         onClick={() => handleQuickView(product)}
-                        className="btn-outline text-sm px-4 py-2 flex items-center space-x-1"
+                        className="btn-outline text-sm px-4 py-2 flex items-center space-x-2"
                       >
                         <Eye className="w-4 h-4" />
                         <span>Quick View</span>
@@ -374,7 +384,7 @@ const Products = () => {
                       </Link>
                       <button
                         onClick={() => handleAddToCart(product.id)}
-                        className="btn-primary text-sm px-4 py-2 flex items-center space-x-1"
+                        className="btn-primary text-sm px-4 py-2 flex items-center space-x-2"
                       >
                         <ShoppingCart className="w-4 h-4" />
                         <span>Add to Cart</span>

@@ -4,27 +4,28 @@ import { Mail, Phone, MapPin, Facebook, Instagram, Youtube, Linkedin } from 'luc
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-gradient-to-br from-neutral-900 via-neutral-800 to-sage-900 text-white relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-neutral-900/95 via-neutral-800/95 to-sage-900/95"></div>
+      <div className="container-custom relative z-10 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Company Info */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">P</span>
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">P</span>
               </div>
-              <span className="text-xl font-bold">Pure_element</span>
+              <span className="text-2xl font-bold font-playfair">Pure Elements</span>
             </div>
-            <p className="text-gray-300 text-sm">
+            <p className="text-neutral-300 text-base leading-relaxed">
               Premium Ayurvedic beauty and wellness products crafted with natural ingredients 
-              for your holistic well-being.
+              and ancient wisdom for your holistic well-being and natural radiance.
             </p>
             <div className="flex space-x-4">
               <a 
                 href="https://www.facebook.com/pureelementsnaturalkosmetik" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-primary-400 transition-colors"
+                className="w-10 h-10 bg-neutral-700 hover:bg-primary-600 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110"
               >
                 <Facebook className="w-5 h-5" />
               </a>
@@ -32,7 +33,7 @@ const Footer = () => {
                 href="https://www.instagram.com/pure_elements_naturkosmetik/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-primary-400 transition-colors"
+                className="w-10 h-10 bg-neutral-700 hover:bg-primary-600 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110"
               >
                 <Instagram className="w-5 h-5" />
               </a>
@@ -40,7 +41,7 @@ const Footer = () => {
                 href="https://youtube.com/@PureElementsNaturkosmetik" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-primary-400 transition-colors"
+                className="w-10 h-10 bg-neutral-700 hover:bg-primary-600 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110"
               >
                 <Youtube className="w-5 h-5" />
               </a>
@@ -48,7 +49,7 @@ const Footer = () => {
                 href="https://www.linkedin.com/company/pure-elements-naturkosmetik/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-primary-400 transition-colors"
+                className="w-10 h-10 bg-neutral-700 hover:bg-primary-600 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
@@ -56,26 +57,31 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Quick Links</h3>
-            <ul className="space-y-2">
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold font-playfair">Quick Links</h3>
+            <ul className="space-y-3">
               <li>
-                <Link to="/" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/products" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
                   All Products
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/about" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
                   About Us
                 </Link>
               </li>
               <li>
-                <span className="text-gray-300 text-sm cursor-default">
+                <Link to="/stores" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
+                  Store Locations
+                </Link>
+              </li>
+              <li>
+                <span className="text-neutral-400 text-base font-medium cursor-default">
                   Contact
                 </span>
               </li>
@@ -83,31 +89,31 @@ const Footer = () => {
           </div>
 
           {/* Categories */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Categories</h3>
-            <ul className="space-y-2">
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold font-playfair">Categories</h3>
+            <ul className="space-y-3">
               <li>
-                <Link to="/products?category=hair-care" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=hair-care" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
                   Hair Care
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=skin-care" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=skin-care" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
                   Skin Care
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=body-care" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=body-care" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
                   Body Care
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=wellness" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=wellness" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
                   Wellness
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=gifting" className="text-gray-300 hover:text-primary-400 transition-colors text-sm">
+                <Link to="/products?category=gifting" className="text-neutral-300 hover:text-primary-400 transition-colors duration-200 text-base font-medium">
                   Gifting
                 </Link>
               </li>
@@ -115,20 +121,26 @@ const Footer = () => {
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Contact Us</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Mail className="w-4 h-4 text-primary-400" />
-                <span className="text-gray-300 text-sm">info@pureelement.com</span>
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold font-playfair">Contact Us</h3>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-primary-600/20 rounded-full flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-primary-400" />
+                </div>
+                <span className="text-neutral-300 text-base font-medium">info@pureelements.com</span>
               </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="w-4 h-4 text-primary-400" />
-                <span className="text-gray-300 text-sm">+1 (555) 123-4567</span>
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-primary-600/20 rounded-full flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-primary-400" />
+                </div>
+                <span className="text-neutral-300 text-base font-medium">+1 (555) 123-4567</span>
               </div>
-              <div className="flex items-start space-x-3">
-                <MapPin className="w-4 h-4 text-primary-400 mt-0.5" />
-                <span className="text-gray-300 text-sm">
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 bg-primary-600/20 rounded-full flex items-center justify-center mt-1">
+                  <MapPin className="w-5 h-5 text-primary-400" />
+                </div>
+                <span className="text-neutral-300 text-base font-medium leading-relaxed">
                   123 Wellness Street<br />
                   Natural City, NC 12345
                 </span>
@@ -138,19 +150,19 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 mt-8 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © 2024 Pure_element. All rights reserved.
+        <div className="border-t border-neutral-700 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-neutral-400 text-base font-medium">
+              © 2024 Pure Elements. All rights reserved.
             </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <span className="text-gray-400 text-sm cursor-default">
+            <div className="flex space-x-8">
+              <span className="text-neutral-400 text-base font-medium cursor-default hover:text-primary-400 transition-colors duration-200">
                 Privacy Policy
               </span>
-              <span className="text-gray-400 text-sm cursor-default">
+              <span className="text-neutral-400 text-base font-medium cursor-default hover:text-primary-400 transition-colors duration-200">
                 Terms of Service
               </span>
-              <span className="text-gray-400 text-sm cursor-default">
+              <span className="text-neutral-400 text-base font-medium cursor-default hover:text-primary-400 transition-colors duration-200">
                 Return Policy
               </span>
             </div>
