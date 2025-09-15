@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { supabase } = require('../config/supabase');
+const { supabaseAdmin } = require('../config/supabase');
 const auth = require('../middleware/auth');
 
 // GET /api/reviews/:productId - Fetch all reviews for a specific product
@@ -14,7 +14,7 @@ router.get('/:productId', async (req, res) => {
     }
 
     // Fetch reviews with user information
-    const { data: reviews, error } = await supabase
+    const { data: reviews, error } = await supabaseAdmin
       .from('reviews')
       .select(`
         id,
@@ -80,7 +80,7 @@ router.post('/:productId', auth.authenticateToken, async (req, res) => {
     }
 
     // Check if product exists
-    const { data: product, error: productError } = await supabase
+    const { data: product, error: productError } = await supabaseAdmin
       .from('products')
       .select('id, name')
       .eq('id', productId)
@@ -91,7 +91,7 @@ router.post('/:productId', auth.authenticateToken, async (req, res) => {
     }
 
     // Check if user has already reviewed this product
-    const { data: existingReview, error: existingReviewError } = await supabase
+    const { data: existingReview, error: existingReviewError } = await supabaseAdmin
       .from('reviews')
       .select('id')
       .eq('product_id', productId)
@@ -108,7 +108,7 @@ router.post('/:productId', auth.authenticateToken, async (req, res) => {
     }
 
     // Check if user has purchased this product
-    const { data: purchase, error: purchaseError } = await supabase
+    const { data: purchase, error: purchaseError } = await supabaseAdmin
       .from('order_items')
       .select(`
         id,
@@ -134,7 +134,7 @@ router.post('/:productId', auth.authenticateToken, async (req, res) => {
     }
 
     // Create the review
-    const { data: newReview, error: reviewError } = await supabase
+    const { data: newReview, error: reviewError } = await supabaseAdmin
       .from('reviews')
       .insert({
         product_id: productId,
@@ -199,7 +199,7 @@ router.put('/:reviewId', auth.authenticateToken, async (req, res) => {
     }
 
     // Check if review exists and belongs to user
-    const { data: existingReview, error: existingReviewError } = await supabase
+    const { data: existingReview, error: existingReviewError } = await supabaseAdmin
       .from('reviews')
       .select('id, user_id')
       .eq('id', reviewId)
@@ -214,7 +214,7 @@ router.put('/:reviewId', auth.authenticateToken, async (req, res) => {
     }
 
     // Update the review
-    const { data: updatedReview, error: updateError } = await supabase
+    const { data: updatedReview, error: updateError } = await supabaseAdmin
       .from('reviews')
       .update({
         rating: rating,
@@ -289,7 +289,7 @@ router.delete('/:reviewId', auth.authenticateToken, async (req, res) => {
     }
 
     // Delete the review
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await supabaseAdmin
       .from('reviews')
       .delete()
       .eq('id', reviewId);

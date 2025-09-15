@@ -183,24 +183,24 @@ const Navbar = () => {
             {/* Static link before categories */}
             <Link 
               to="/about" 
-              className={`nav-link uppercase tracking-wide text-sm font-semibold ${location.pathname==='/about'?'active':''}`}
+              className={`nav-link uppercase tracking-wide text-sm font-semibold whitespace-nowrap ${location.pathname==='/about'?'active':''}`}
             >
               About Us
             </Link>
             {menuTree.map((item)=> (
               <div
-               key={item.id}
-               className="relative group"
-               onMouseEnter={() => setOpenDesktopDropdown(item.id)}
-               onMouseLeave={() => setOpenDesktopDropdown(null)}
-             >
+                key={item.id}
+                className="relative group"
+                onMouseEnter={() => setOpenDesktopDropdown(item.id)}
+                onMouseLeave={() => setOpenDesktopDropdown(null)}
+              >
                 {item.name === 'Products' ? (
-                  <Link to="/products" className="flex items-center space-x-2 text-sm font-semibold tracking-wide uppercase nav-link">
+                  <Link to="/products" className="flex items-center space-x-2 text-sm font-semibold tracking-wide uppercase whitespace-nowrap nav-link">
                     <span>{item.name}</span>
                     {item.children && item.children.length>0 && <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180"/>}
                   </Link>
                 ) : (
-                  <button className="flex items-center space-x-2 text-sm font-semibold tracking-wide uppercase nav-link">
+                  <button className="flex items-center space-x-2 text-sm font-semibold tracking-wide uppercase whitespace-nowrap nav-link">
                     <span>{item.name}</span>
                     {item.children && item.children.length>0 && <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180"/>}
                   </button>
@@ -228,7 +228,7 @@ const Navbar = () => {
             ))}
             <Link 
               to="/stores" 
-              className={`nav-link uppercase tracking-wide text-sm font-semibold ${location.pathname==='/stores'?'active':''}`}
+              className={`nav-link uppercase tracking-wide text-sm font-semibold whitespace-nowrap ${location.pathname==='/stores'?'active':''}`}
             >
               Stores
             </Link>

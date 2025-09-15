@@ -16,6 +16,9 @@ const reviewRoutes = require('./routes/reviews');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust the first proxy (e.g., when behind Vite/dev proxy or reverse proxy)
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
@@ -29,12 +32,22 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rate limiting
+// Rate limiting (opt-in via ENABLE_RATE_LIMIT)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS'
 });
-app.use(limiter);
+if (process.env.ENABLE_RATE_LIMIT === 'true') {
+  console.log('🔒 Rate limiting enabled');
+  // Apply limiter only to sensitive routes
+  app.use('/api/auth', limiter);
+  app.use('/api/profile', limiter);
+  app.use('/api/admin', limiter);
+  app.use('/api/v1/orders', limiter);
+}
 
 
 
