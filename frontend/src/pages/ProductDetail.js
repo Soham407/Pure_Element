@@ -177,7 +177,7 @@ const ProductDetail = () => {
                   ({totalReviews} review{totalReviews !== 1 ? 's' : ''})
                 </span>
               </div>
-              <p className="text-4xl font-bold text-primary-600 mb-4">${product.price}</p>
+              <p className="text-4xl font-bold text-primary-600 mb-4">₹{product.price}</p>
             </div>
 
             <div>
@@ -241,7 +241,7 @@ const ProductDetail = () => {
                   className="w-full btn-primary text-lg py-4 flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  <span>Add to Cart - ${(product.price * quantity).toFixed(2)}</span>
+                  <span>Add to Cart - ₹{(product.price * quantity).toFixed(2)}</span>
                 </button>
               </div>
             )}

@@ -125,7 +125,7 @@ const Cart = () => {
                           {item.products.name}
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">
-                          ${item.products.price} each
+                          ₹{item.products.price} each
                         </p>
                         <p className="text-sm text-gray-500">
                           Stock: {item.products.stock} available
@@ -156,7 +156,7 @@ const Cart = () => {
                       {/* Subtotal */}
                       <div className="text-right">
                         <p className="text-lg font-semibold text-gray-900">
-                          ${(item.products.price * item.quantity).toFixed(2)}
+                          ₹{(item.products.price * item.quantity).toFixed(2)}
                         </p>
                         <button
                           onClick={() => handleRemoveItem(item.id)}
@@ -180,7 +180,7 @@ const Cart = () => {
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal ({itemCount} items)</span>
-                  <span className="text-gray-900">${total.toFixed(2)}</span>
+                  <span className="text-gray-900">₹{total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
@@ -193,7 +193,7 @@ const Cart = () => {
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between text-lg font-semibold">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-gray-900">${total.toFixed(2)}</span>
+                    <span className="text-gray-900">₹{total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

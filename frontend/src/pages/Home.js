@@ -190,7 +190,7 @@ const Home = () => {
                     </div>
                     <div className="flex justify-between items-center pt-4">
                       <span className="price">
-                        ${product.price}
+                        ₹{product.price}
                       </span>
                       <div className="flex space-x-3">
                         <Link

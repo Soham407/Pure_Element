@@ -147,7 +147,7 @@ const AdminProducts = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                        ${product.price}
+                        ₹{product.price}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className={`font-medium ${
@@ -241,7 +241,7 @@ const AdminProducts = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary-600">
-                  ${filteredProducts.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}
+                  ₹{filteredProducts.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-600">Total Value</div>
               </div>
