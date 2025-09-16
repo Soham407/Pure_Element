@@ -10,8 +10,6 @@ import {
   Search, 
   Grid, 
   List,
-  SortAsc,
-  SortDesc,
   ArrowLeft
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -228,10 +226,13 @@ const SearchResults = () => {
                   : 'card-hover p-6 flex flex-col md:flex-row gap-6'
                 }
               >
-                <div className={viewMode === 'grid' 
-                  ? 'aspect-w-1 aspect-h-1 mb-4 overflow-hidden rounded-lg'
-                  : 'w-full md:w-48 flex-shrink-0'
-                }>
+                <Link 
+                  to={`/products/${product.id}`}
+                  className={viewMode === 'grid' 
+                    ? 'aspect-w-1 aspect-h-1 mb-4 overflow-hidden rounded-lg hover:opacity-90 transition-opacity duration-200'
+                    : 'w-full md:w-48 flex-shrink-0 hover:opacity-90 transition-opacity duration-200'
+                  }
+                >
                   <img
                     src={product.thumbnail_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
                     alt={product.name}
@@ -240,13 +241,16 @@ const SearchResults = () => {
                       : 'w-full h-48 md:h-full object-cover rounded-lg'
                     }
                   />
-                </div>
+                </Link>
                 
                 <div className={viewMode === 'grid' ? 'space-y-2' : 'flex-1 space-y-2'}>
                   <div className="flex items-start justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                    <Link 
+                      to={`/products/${product.id}`}
+                      className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors hover:text-primary-600"
+                    >
                       {product.name}
-                    </h3>
+                    </Link>
                     <span className="text-xl font-bold text-primary-600">
                       ${product.price}
                     </span>

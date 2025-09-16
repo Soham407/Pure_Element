@@ -91,6 +91,29 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Get product gallery images (public endpoint) - must come before /:id route
+router.get('/:id/images', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: images, error } = await supabaseAdmin
+      .from('product_images')
+      .select('id, image_url, created_at')
+      .eq('product_id', id)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Get product images error:', error);
+      return res.status(500).json({ error: 'Failed to fetch product images' });
+    }
+
+    res.json({ images });
+  } catch (error) {
+    console.error('Get product images error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Search products
 router.get('/search/:query', async (req, res) => {
   try {

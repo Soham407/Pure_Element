@@ -61,6 +61,7 @@ export const apiService = {
     getById: (id) => apiClient.get(`/products/${id}`),
     getByCategory: (categoryId) => apiClient.get(`/products/category/${categoryId}`),
     search: (query) => apiClient.get(`/products/search/${query}`),
+    getImages: (id) => apiClient.get(`/products/${id}/images`),
   },
 
   // Category endpoints

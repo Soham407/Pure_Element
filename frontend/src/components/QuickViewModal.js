@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, ShoppingCart, Star, Eye } from 'lucide-react';
+import { X, ShoppingCart, Star, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { apiService } from '../services/api';
 import toast from 'react-hot-toast';
 
 const QuickViewModal = ({ product, isOpen, onClose }) => {
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // Fetch gallery images when modal opens
+  useEffect(() => {
+    if (isOpen && product?.id) {
+      const fetchGalleryImages = async () => {
+        try {
+          const response = await apiService.products.getImages(product.id);
+          const images = response.data.images || [];
+          setGalleryImages(images);
+        } catch (error) {
+          console.error('Failed to fetch gallery images:', error);
+          setGalleryImages([]);
+        }
+      };
+      fetchGalleryImages();
+    }
+  }, [isOpen, product?.id]);
 
   if (!isOpen || !product) return null;
 
@@ -24,6 +44,32 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
+  };
+
+  // Image gallery functions
+  const getAllImages = () => {
+    const images = [];
+    if (product?.thumbnail_url) {
+      images.push({ url: product.thumbnail_url, isThumbnail: true });
+    }
+    galleryImages.forEach(img => {
+      images.push({ url: img.image_url, isThumbnail: false });
+    });
+    return images;
+  };
+
+  const handleImageSelect = (index) => {
+    setSelectedImageIndex(index);
+  };
+
+  const handleNextImage = () => {
+    const allImages = getAllImages();
+    setSelectedImageIndex((prev) => (prev + 1) % allImages.length);
+  };
+
+  const handlePrevImage = () => {
+    const allImages = getAllImages();
+    setSelectedImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
   };
 
   return (
@@ -46,13 +92,82 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
         {/* Content */}
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Product Image */}
-            <div className="aspect-w-1 aspect-h-1">
-              <img
-                src={product.thumbnail_url || 'https://via.placeholder.com/400x400/f3f4f6/9ca3af?text=No+Image'}
-                alt={product.name}
-                className="w-full h-80 object-cover rounded-lg"
-              />
+            {/* Product Image Gallery */}
+            <div className="space-y-3">
+              {/* Main Image */}
+              <div className="relative flex items-center justify-center min-h-[300px] max-h-[400px] w-full bg-gray-50 rounded-lg">
+                {(() => {
+                  const allImages = getAllImages();
+                  const currentImage = allImages[selectedImageIndex] || { url: product.thumbnail_url || 'https://via.placeholder.com/400x400/f3f4f6/9ca3af?text=No+Image' };
+                  return (
+                    <img
+                      src={currentImage.url}
+                      alt={product.name}
+                      className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
+                      style={{ minHeight: '200px', minWidth: '150px' }}
+                    />
+                  );
+                })()}
+                
+                {/* Navigation arrows for multiple images */}
+                {(() => {
+                  const allImages = getAllImages();
+                  if (allImages.length > 1) {
+                    return (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrevImage();
+                          }}
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 p-1 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all duration-200"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNextImage();
+                          }}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all duration-200"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+
+              {/* Image Thumbnails */}
+              {(() => {
+                const allImages = getAllImages();
+                if (allImages.length > 1) {
+                  return (
+                    <div className="flex space-x-2 overflow-x-auto pb-1">
+                      {allImages.map((image, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleImageSelect(index)}
+                          className={`flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all duration-200 flex items-center justify-center bg-gray-100 ${
+                            selectedImageIndex === index
+                              ? 'border-primary-500 ring-2 ring-primary-200'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <img
+                            src={image.url}
+                            alt={`${product.name} ${index + 1}`}
+                            className="max-w-full max-h-full w-auto h-auto object-contain"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             {/* Product Details */}

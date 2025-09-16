@@ -330,19 +330,25 @@ const Products = () => {
                   className="product-card p-6 flex flex-col md:flex-row gap-6 group animate-fade-in"
                   style={{animationDelay: `${index * 100}ms`}}
                 >
-                  {/* You may later refactor this to use ProductCard for list view as well */}
-                  <div className="w-full md:w-48 flex-shrink-0">
+                  {/* Clickable Product Image */}
+                  <Link 
+                    to={`/products/${product.id}`}
+                    className="w-full md:w-48 flex-shrink-0 hover:opacity-90 transition-opacity duration-200"
+                  >
                     <img
                       src={product.thumbnail_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
                       alt={product.name}
                       className="w-full h-48 md:h-full object-cover rounded-2xl"
                     />
-                  </div>
+                  </Link>
                   <div className="flex-1 space-y-4">
                     <div className="flex items-start justify-between">
-                      <h3 className="text-xl font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors duration-200">
+                      <Link 
+                        to={`/products/${product.id}`}
+                        className="text-xl font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors duration-200 hover:text-primary-600"
+                      >
                         {product.name}
-                      </h3>
+                      </Link>
                       <span className="price">
                         ₹{product.price}
                       </span>

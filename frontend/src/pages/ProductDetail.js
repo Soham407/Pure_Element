@@ -5,7 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import StarRating from '../components/common/StarRating';
-import { ShoppingCart, ArrowLeft, Plus, Minus, MessageSquare, User, Calendar } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Plus, Minus, MessageSquare, User, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ProductDetail = () => {
@@ -24,6 +24,9 @@ const ProductDetail = () => {
     comment: ''
   });
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showImageModal, setShowImageModal] = useState(false);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
 
@@ -31,6 +34,17 @@ const ProductDetail = () => {
     try {
       const response = await apiService.products.getById(id);
       setProduct(response.data.product);
+      
+      // Fetch gallery images
+      try {
+        const galleryResponse = await apiService.products.getImages(id);
+        const images = galleryResponse.data.images || [];
+        setGalleryImages(images);
+      } catch (galleryError) {
+        console.error('Failed to fetch gallery images:', galleryError);
+        // Don't fail the whole page if gallery images fail to load
+        setGalleryImages([]);
+      }
     } catch (error) {
       console.error('Failed to fetch product:', error);
       toast.error('Product not found');
@@ -117,6 +131,40 @@ const ProductDetail = () => {
     }
   };
 
+  // Image gallery functions
+  const getAllImages = () => {
+    const images = [];
+    if (product?.thumbnail_url) {
+      images.push({ url: product.thumbnail_url, isThumbnail: true });
+    }
+    galleryImages.forEach(img => {
+      images.push({ url: img.image_url, isThumbnail: false });
+    });
+    return images;
+  };
+
+  const handleImageSelect = (index) => {
+    setSelectedImageIndex(index);
+  };
+
+  const handleImageClick = () => {
+    setShowImageModal(true);
+  };
+
+  const handleNextImage = () => {
+    const allImages = getAllImages();
+    setSelectedImageIndex((prev) => (prev + 1) % allImages.length);
+  };
+
+  const handlePrevImage = () => {
+    const allImages = getAllImages();
+    setSelectedImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  };
+
+  const handleCloseImageModal = () => {
+    setShowImageModal(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -151,15 +199,55 @@ const ProductDetail = () => {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Image */}
+          {/* Product Image Gallery */}
           <div className="space-y-4">
-            <div className="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden shadow-lg">
-              <img
-                src={product.thumbnail_url || 'https://via.placeholder.com/600x600/f3f4f6/9ca3af?text=No+Image'}
-                alt={product.name}
-                className="w-full h-96 object-cover"
-              />
+            {/* Main Image */}
+            <div 
+              className="bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer flex items-center justify-center min-h-[400px] max-h-[600px] w-full" 
+              onClick={handleImageClick}
+            >
+              {(() => {
+                const allImages = getAllImages();
+                const currentImage = allImages[selectedImageIndex] || { url: product.thumbnail_url || 'https://via.placeholder.com/600x600/f3f4f6/9ca3af?text=No+Image' };
+                return (
+                  <img
+                    src={currentImage.url}
+                    alt={product.name}
+                    className="max-w-full max-h-full w-auto h-auto object-contain hover:scale-105 transition-transform duration-300"
+                    style={{ minHeight: '300px', minWidth: '200px' }}
+                  />
+                );
+              })()}
             </div>
+
+            {/* Image Thumbnails */}
+            {(() => {
+              const allImages = getAllImages();
+              if (allImages.length > 1) {
+                return (
+                  <div className="flex space-x-2 overflow-x-auto pb-2">
+                    {allImages.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleImageSelect(index)}
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 flex items-center justify-center bg-gray-100 ${
+                          selectedImageIndex === index
+                            ? 'border-primary-500 ring-2 ring-primary-200'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <img
+                          src={image.url}
+                          alt={`${product.name} ${index + 1}`}
+                          className="max-w-full max-h-full w-auto h-auto object-contain"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                );
+              }
+              return null;
+            })()}
           </div>
 
           {/* Product Info */}
@@ -379,6 +467,80 @@ const ProductDetail = () => {
             )}
           </div>
         </div>
+
+        {/* Image Modal */}
+        {showImageModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90" onClick={handleCloseImageModal}>
+            <div className="relative max-w-4xl max-h-[90vh] w-full mx-4">
+              {/* Close Button */}
+              <button
+                onClick={handleCloseImageModal}
+                className="absolute top-4 right-4 z-10 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all duration-200"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              {/* Navigation Buttons */}
+              {(() => {
+                const allImages = getAllImages();
+                if (allImages.length > 1) {
+                  return (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePrevImage();
+                        }}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all duration-200"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNextImage();
+                        }}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all duration-200"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    </>
+                  );
+                }
+                return null;
+              })()}
+
+              {/* Main Image */}
+              <div className="flex items-center justify-center h-full w-full" onClick={(e) => e.stopPropagation()}>
+                {(() => {
+                  const allImages = getAllImages();
+                  const currentImage = allImages[selectedImageIndex] || { url: product.thumbnail_url || 'https://via.placeholder.com/600x600/f3f4f6/9ca3af?text=No+Image' };
+                  return (
+                    <img
+                      src={currentImage.url}
+                      alt={product.name}
+                      className="max-w-full max-h-full w-auto h-auto object-contain"
+                      style={{ minHeight: '200px', minWidth: '150px' }}
+                    />
+                  );
+                })()}
+              </div>
+
+              {/* Image Counter */}
+              {(() => {
+                const allImages = getAllImages();
+                if (allImages.length > 1) {
+                  return (
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+                      {selectedImageIndex + 1} / {allImages.length}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
