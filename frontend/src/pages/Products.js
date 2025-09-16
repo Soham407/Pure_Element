@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import QuickViewModal from '../components/QuickViewModal';
+import ProductCard from '../components/common/ProductCard';
 import { 
   ShoppingCart, 
   Star, 
@@ -321,78 +322,70 @@ const Products = () => {
             : 'space-y-6'
           }>
             {sortedProducts.map((product, index) => (
-              <div
-                key={product.id}
-                className={viewMode === 'grid' 
-                  ? 'product-card p-6 group animate-fade-in'
-                  : 'product-card p-6 flex flex-col md:flex-row gap-6 group animate-fade-in'
-                }
-                style={{animationDelay: `${index * 100}ms`}}
-              >
-                <div className={viewMode === 'grid' 
-                  ? 'aspect-w-1 aspect-h-1 mb-6 overflow-hidden rounded-2xl'
-                  : 'w-full md:w-48 flex-shrink-0'
-                }>
-                  <img
-                    src={product.image_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
-                    alt={product.name}
-                    className={viewMode === 'grid'
-                      ? 'product-image'
-                      : 'w-full h-48 md:h-full object-cover rounded-2xl'
-                    }
-                  />
-                </div>
-                
-                <div className={viewMode === 'grid' ? 'space-y-4' : 'flex-1 space-y-4'}>
-                  <div className="flex items-start justify-between">
-                    <h3 className="text-xl font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors duration-200">
-                      {product.name}
-                    </h3>
-                    <span className="price">
-                      ${product.price}
-                    </span>
+              viewMode === 'grid' ? (
+                <ProductCard key={product.id} product={product} />
+              ) : (
+                <div
+                  key={product.id}
+                  className="product-card p-6 flex flex-col md:flex-row gap-6 group animate-fade-in"
+                  style={{animationDelay: `${index * 100}ms`}}
+                >
+                  {/* You may later refactor this to use ProductCard for list view as well */}
+                  <div className="w-full md:w-48 flex-shrink-0">
+                    <img
+                      src={product.image_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
+                      alt={product.name}
+                      className="w-full h-48 md:h-full object-cover rounded-2xl"
+                    />
                   </div>
-                  
-                  <p className="text-neutral-600 text-sm line-clamp-2 leading-relaxed">
-                    {product.description}
-                  </p>
-                  
-                  <div className="rating">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="star" />
-                    ))}
-                    <span className="text-sm text-neutral-500 ml-2 font-medium">(4.8)</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between pt-4">
-                    <span className="text-sm text-neutral-500 font-medium">
-                      Category: {product.categories?.name}
-                    </span>
-                    <div className="flex space-x-3">
-                      <button
-                        onClick={() => handleQuickView(product)}
-                        className="btn-outline text-sm px-4 py-2 flex items-center space-x-2"
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span>Quick View</span>
-                      </button>
-                      <Link
-                        to={`/products/${product.id}`}
-                        className="btn-outline text-sm px-4 py-2"
-                      >
-                        View Details
-                      </Link>
-                      <button
-                        onClick={() => handleAddToCart(product.id)}
-                        className="btn-primary text-sm px-4 py-2 flex items-center space-x-2"
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                        <span>Add to Cart</span>
-                      </button>
+                  <div className="flex-1 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <h3 className="text-xl font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors duration-200">
+                        {product.name}
+                      </h3>
+                      <span className="price">
+                        ₹{product.price}
+                      </span>
+                    </div>
+                    <p className="text-neutral-600 text-sm line-clamp-2 leading-relaxed">
+                      {product.description}
+                    </p>
+                    <div className="rating">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="star" />
+                      ))}
+                      <span className="text-sm text-neutral-500 ml-2 font-medium">(4.8)</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-4">
+                      <span className="text-sm text-neutral-500 font-medium">
+                        Category: {product.categories?.name}
+                      </span>
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleQuickView(product)}
+                          className="btn-outline text-sm px-4 py-2 flex items-center space-x-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Quick View</span>
+                        </button>
+                        <Link
+                          to={`/products/${product.id}`}
+                          className="btn-outline text-sm px-4 py-2"
+                        >
+                          View Details
+                        </Link>
+                        <button
+                          onClick={() => handleAddToCart(product.id)}
+                          className="btn-primary text-sm px-4 py-2 flex items-center space-x-2"
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                          <span>Add to Cart</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )
             ))}
           </div>
         )}

@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { ShoppingCart, Star, Leaf, Award, Shield, Heart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ProductCard from '../components/common/ProductCard';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -166,50 +167,7 @@ const Home = () => {
           ) : (
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {featuredProducts.map((product, index) => (
-                <div key={product.id} className="p-6 product-card group animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
-                  <div className="overflow-hidden mb-6 rounded-2xl aspect-w-1 aspect-h-1">
-                    <img
-                      src={product.image_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
-                      alt={product.name}
-                      className="product-image"
-                    />
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold transition-colors duration-200 text-neutral-900 group-hover:text-primary-600">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-neutral-600 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <div className="rating">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="star" />
-                      ))}
-                      <span className="ml-2 text-sm font-medium text-neutral-500">(4.8)</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-4">
-                      <span className="price">
-                        ₹{product.price}
-                      </span>
-                      <div className="flex space-x-3">
-                        <Link
-                          to={`/products/${product.id}`}
-                          className="px-4 py-2 text-sm btn-outline"
-                        >
-                          View Details
-                        </Link>
-                        <button
-                          onClick={() => handleAddToCart(product.id)}
-                          className="flex items-center px-4 py-2 space-x-2 text-sm btn-primary"
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                          <span>Add to Cart</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}
