@@ -127,7 +127,7 @@ const AdminProducts = () => {
                           <div className="flex-shrink-0 h-12 w-12">
                             <img
                               className="h-12 w-12 rounded-lg object-cover"
-                              src={product.image_url || 'https://via.placeholder.com/48x48/f3f4f6/9ca3af?text=No+Image'}
+                              src={product.thumbnail_url || 'https://via.placeholder.com/48x48/f3f4f6/9ca3af?text=No+Image'}
                               alt={product.name}
                             />
                           </div>

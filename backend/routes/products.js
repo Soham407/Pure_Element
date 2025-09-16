@@ -71,7 +71,7 @@ router.get('/:id', async (req, res) => {
         description,
         price,
         stock,
-        image_url,
+        thumbnail_url,
         categories (
           id,
           name

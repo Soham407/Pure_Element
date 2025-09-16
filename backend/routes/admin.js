@@ -24,42 +24,43 @@ const upload = multer({
 router.use(authenticateToken);
 router.use(requireAdmin);
 
-// Upload image to Supabase storage
-router.post('/upload-image', upload.single('image'), async (req, res) => {
+// Upload images to Supabase storage (multiple)
+router.post('/upload-image', upload.array('images', 5), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image file provided' });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No image files provided' });
     }
 
-    const file = req.file;
-    const fileName = `${Date.now()}-${file.originalname}`;
-
-    // Upload to Supabase storage
-    const { data, error } = await supabaseAdmin.storage
-      .from('product-images')
-      .upload(fileName, file.buffer, {
-        contentType: file.mimetype,
-        cacheControl: '3600',
-        upsert: false
+    const uploadResults = [];
+    for (const file of req.files) {
+      const fileName = `${Date.now()}-${file.originalname}`;
+      // Upload to Supabase storage
+      const { data, error } = await supabaseAdmin.storage
+        .from('product-images')
+        .upload(fileName, file.buffer, {
+          contentType: file.mimetype,
+          cacheControl: '3600',
+          upsert: false
+        });
+      if (error) {
+        console.error('Image upload error:', error);
+        return res.status(500).json({ error: 'Failed to upload image' });
+      }
+      // Get public URL
+      const { data: publicUrlData } = supabaseAdmin.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+      uploadResults.push({
+        imageUrl: publicUrlData.publicUrl,
+        fileName: fileName
       });
-
-    if (error) {
-      console.error('Image upload error:', error);
-      return res.status(500).json({ error: 'Failed to upload image' });
     }
-
-    // Get public URL
-    const { data: publicUrlData } = supabaseAdmin.storage
-      .from('product-images')
-      .getPublicUrl(fileName);
-
     res.json({
-      message: 'Image uploaded successfully',
-      imageUrl: publicUrlData.publicUrl,
-      fileName: fileName
+      message: 'Images uploaded successfully',
+      images: uploadResults
     });
   } catch (error) {
-    console.error('Upload image error:', error);
+    console.error('Upload images error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -90,19 +91,40 @@ router.get('/products', async (req, res) => {
   }
 });
 
+// Get product gallery images
+router.get('/products/:id/images', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: images, error } = await supabaseAdmin
+      .from('product_images')
+      .select('id, image_url, created_at')
+      .eq('product_id', id)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Get product images error:', error);
+      return res.status(500).json({ error: 'Failed to fetch product images' });
+    }
+
+    res.json({ images });
+  } catch (error) {
+    console.error('Get product images error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Create new product
 router.post('/products', async (req, res) => {
   try {
-    const { name, description, price, categoryId, stock, imageUrl } = req.body;
+    const { name, description, price, categoryId, stock, thumbnailUrl, imageUrls } = req.body;
 
     if (!name || !price || !categoryId) {
       return res.status(400).json({ error: 'Name, price, and category are required' });
     }
-
     if (price <= 0) {
       return res.status(400).json({ error: 'Price must be greater than 0' });
     }
-
     if (stock < 0) {
       return res.status(400).json({ error: 'Stock cannot be negative' });
     }
@@ -113,7 +135,6 @@ router.post('/products', async (req, res) => {
       .select('id')
       .eq('id', categoryId)
       .single();
-
     if (categoryError || !category) {
       return res.status(400).json({ error: 'Invalid category' });
     }
@@ -127,20 +148,28 @@ router.post('/products', async (req, res) => {
         price: parseFloat(price),
         category_id: categoryId,
         stock: parseInt(stock) || 0,
-        image_url: imageUrl
+        thumbnail_url: thumbnailUrl
       }])
-      .select(`
-        *,
-        categories (
-          id,
-          name
-        )
-      `)
+      .select(`*, categories (id, name)`) // keep category join
       .single();
-
     if (error) {
       console.error('Create product error:', error);
       return res.status(500).json({ error: 'Failed to create product' });
+    }
+
+    // Insert product images if provided
+    if (Array.isArray(imageUrls) && imageUrls.length > 0) {
+      const imagesToInsert = imageUrls.map(url => ({
+        product_id: product.id,
+        image_url: url
+      }));
+      const { error: imgError } = await supabaseAdmin
+        .from('product_images')
+        .insert(imagesToInsert);
+      if (imgError) {
+        console.error('Insert product images error:', imgError);
+        // Don't fail the request, but log
+      }
     }
 
     res.status(201).json({
@@ -157,7 +186,7 @@ router.post('/products', async (req, res) => {
 router.put('/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, categoryId, stock, imageUrl } = req.body;
+    const { name, description, price, categoryId, stock, thumbnailUrl, imageUrls } = req.body;
 
     // Get existing product
     const { data: existingProduct, error: existingError } = await supabaseAdmin
@@ -165,13 +194,11 @@ router.put('/products/:id', async (req, res) => {
       .select('*')
       .eq('id', id)
       .single();
-
     if (existingError || !existingProduct) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
     const updateData = {};
-
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (price !== undefined) {
@@ -186,8 +213,7 @@ router.put('/products/:id', async (req, res) => {
       }
       updateData.stock = parseInt(stock);
     }
-    if (imageUrl !== undefined) updateData.image_url = imageUrl;
-
+    if (thumbnailUrl !== undefined) updateData.thumbnail_url = thumbnailUrl;
     if (categoryId !== undefined) {
       // Verify category exists
       const { data: category, error: categoryError } = await supabaseAdmin
@@ -195,17 +221,14 @@ router.put('/products/:id', async (req, res) => {
         .select('id')
         .eq('id', categoryId)
         .single();
-
       if (categoryError || !category) {
         return res.status(400).json({ error: 'Invalid category' });
       }
       updateData.category_id = categoryId;
     }
-
-    if (Object.keys(updateData).length === 0) {
+    if (Object.keys(updateData).length === 0 && !Array.isArray(imageUrls)) {
       return res.status(400).json({ error: 'No valid fields to update' });
     }
-
     updateData.updated_at = new Date().toISOString();
 
     // Update product
@@ -213,18 +236,38 @@ router.put('/products/:id', async (req, res) => {
       .from('products')
       .update(updateData)
       .eq('id', id)
-      .select(`
-        *,
-        categories (
-          id,
-          name
-        )
-      `)
+      .select(`*, categories (id, name)`) // keep category join
       .single();
-
     if (error) {
       console.error('Update product error:', error);
       return res.status(500).json({ error: 'Failed to update product' });
+    }
+
+    // Update product images if provided
+    if (Array.isArray(imageUrls)) {
+      // Delete old images
+      const { error: delError } = await supabaseAdmin
+        .from('product_images')
+        .delete()
+        .eq('product_id', id);
+      if (delError) {
+        console.error('Delete old product images error:', delError);
+        // Don't fail the request, but log
+      }
+      // Insert new images
+      if (imageUrls.length > 0) {
+        const imagesToInsert = imageUrls.map(url => ({
+          product_id: id,
+          image_url: url
+        }));
+        const { error: imgError } = await supabaseAdmin
+          .from('product_images')
+          .insert(imagesToInsert);
+        if (imgError) {
+          console.error('Insert product images error:', imgError);
+          // Don't fail the request, but log
+        }
+      }
     }
 
     res.json({
@@ -245,7 +288,7 @@ router.delete('/products/:id', async (req, res) => {
     // Get product to check if it has an image
     const { data: product, error: getError } = await supabaseAdmin
       .from('products')
-      .select('image_url')
+      .select('thumbnail_url')
       .eq('id', id)
       .single();
 
@@ -265,9 +308,9 @@ router.delete('/products/:id', async (req, res) => {
     }
 
     // Delete image from storage if exists
-    if (product.image_url) {
+    if (product.thumbnail_url) {
       try {
-        const fileName = product.image_url.split('/').pop();
+        const fileName = product.thumbnail_url.split('/').pop();
         await supabaseAdmin.storage
           .from('product-images')
           .remove([fileName]);

@@ -114,7 +114,7 @@ async function getMyOrders(req, res) {
           products (
             id,
             name,
-            image_url
+            thumbnail_url
           )
         )
       `)
@@ -156,7 +156,7 @@ async function getAllOrders(req, res) {
           products (
             id,
             name,
-            image_url
+            thumbnail_url
           )
         )
       `)

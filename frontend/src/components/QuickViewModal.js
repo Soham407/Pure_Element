@@ -49,7 +49,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
             {/* Product Image */}
             <div className="aspect-w-1 aspect-h-1">
               <img
-                src={product.image_url || 'https://via.placeholder.com/400x400/f3f4f6/9ca3af?text=No+Image'}
+                src={product.thumbnail_url || 'https://via.placeholder.com/400x400/f3f4f6/9ca3af?text=No+Image'}
                 alt={product.name}
                 className="w-full h-80 object-cover rounded-lg"
               />

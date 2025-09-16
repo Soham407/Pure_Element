@@ -333,7 +333,7 @@ const Products = () => {
                   {/* You may later refactor this to use ProductCard for list view as well */}
                   <div className="w-full md:w-48 flex-shrink-0">
                     <img
-                      src={product.image_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
+                      src={product.thumbnail_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
                       alt={product.name}
                       className="w-full h-48 md:h-full object-cover rounded-2xl"
                     />

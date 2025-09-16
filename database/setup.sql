@@ -91,7 +91,7 @@ create table public.products (
   description text null,
   price numeric(10, 2) not null,
   category_id uuid not null,
-  image_url text null,
+  thumbnail_url text null, -- renamed from image_url
   stock integer not null default 0,
   created_at timestamp with time zone null default now(),
   updated_at timestamp with time zone null default now(),
@@ -146,4 +146,14 @@ create table public.users (
       role = any (array['customer'::text, 'admin'::text])
     )
   )
+) TABLESPACE pg_default;
+
+-- New table for multiple product images
+create table public.product_images (
+  id uuid not null default gen_random_uuid (),
+  product_id uuid not null,
+  image_url text not null,
+  created_at timestamp with time zone null default now(),
+  constraint product_images_pkey primary key (id),
+  constraint product_images_product_id_fkey foreign key (product_id) references products (id) on delete cascade
 ) TABLESPACE pg_default;

@@ -21,7 +21,7 @@ router.get('/', authenticateToken, async (req, res) => {
             id,
             name,
             price,
-            image_url,
+            thumbnail_url,
             stock
           )
         )

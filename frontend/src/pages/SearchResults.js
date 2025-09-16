@@ -233,7 +233,7 @@ const SearchResults = () => {
                   : 'w-full md:w-48 flex-shrink-0'
                 }>
                   <img
-                    src={product.image_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
+                    src={product.thumbnail_url || 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=No+Image'}
                     alt={product.name}
                     className={viewMode === 'grid'
                       ? 'w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200'

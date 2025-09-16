@@ -103,6 +103,7 @@ export const apiService = {
   admin: {
     // Products
     getProducts: () => apiClient.get('/admin/products'),
+    getProductImages: (id) => apiClient.get(`/admin/products/${id}/images`),
     createProduct: (data) => apiClient.post('/admin/products', data),
     updateProduct: (id, data) => apiClient.put(`/admin/products/${id}`, data),
     deleteProduct: (id) => apiClient.delete(`/admin/products/${id}`),

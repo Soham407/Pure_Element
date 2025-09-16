@@ -20,8 +20,10 @@ const AdminProductForm = () => {
   });
   const [parentCategories, setParentCategories] = useState([]);
   const [childCategories, setChildCategories] = useState([]);
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
+  const [thumbnailImage, setThumbnailImage] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState('');
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [galleryPreviews, setGalleryPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEdit);
   const [errors, setErrors] = useState({});
@@ -76,7 +78,17 @@ const AdminProductForm = () => {
         await fetchChildCategories(productCategory.parent_id);
       }
       
-      setImagePreview(product.image_url);
+      setThumbnailPreview(product.thumbnail_url);
+      
+      // Fetch gallery images for edit mode
+      try {
+        const galleryResponse = await apiService.admin.getProductImages(id);
+        const galleryUrls = galleryResponse.data.images.map(img => img.image_url);
+        setGalleryPreviews(galleryUrls);
+      } catch (error) {
+        console.error('Failed to fetch gallery images:', error);
+        // Don't fail the whole form if gallery images fail to load
+      }
     } catch (error) {
       console.error('Failed to fetch product:', error);
       toast.error('Failed to load product');
@@ -131,7 +143,7 @@ const AdminProductForm = () => {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
@@ -139,18 +151,46 @@ const AdminProductForm = () => {
         return;
       }
       
-      setImage(file);
+      setThumbnailImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
+        setThumbnailPreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const removeImage = () => {
-    setImage(null);
-    setImagePreview('');
+  const removeThumbnail = () => {
+    setThumbnailImage(null);
+    setThumbnailPreview('');
+  };
+
+  const handleGalleryImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter(file => file.size <= 5 * 1024 * 1024);
+    
+    if (validFiles.length !== files.length) {
+      toast.error('Some images were too large and not added (max 5MB each)');
+    }
+    
+    // Limit to 5 images total
+    const newFiles = [...galleryImages, ...validFiles].slice(0, 5);
+    setGalleryImages(newFiles);
+    
+    // Generate previews for all files
+    Promise.all(newFiles.map(file => {
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    })).then(setGalleryPreviews);
+  };
+
+  const removeGalleryImage = (idx) => {
+    const newFiles = galleryImages.filter((_, i) => i !== idx);
+    setGalleryImages(newFiles);
+    setGalleryPreviews(galleryPreviews.filter((_, i) => i !== idx));
   };
 
   const validateForm = () => {
@@ -185,15 +225,25 @@ const AdminProductForm = () => {
     setLoading(true);
 
     try {
-      let imageUrl = imagePreview;
+      let thumbnailUrl = thumbnailPreview;
+      let imageUrls = [];
 
-      // Upload image if new image is selected
-      if (image) {
-        const imageFormData = new FormData();
-        imageFormData.append('image', image);
+      // Upload thumbnail if new image is selected
+      if (thumbnailImage) {
+        const thumbnailFormData = new FormData();
+        thumbnailFormData.append('images', thumbnailImage);
         
-        const uploadResponse = await apiService.admin.uploadImage(imageFormData);
-        imageUrl = uploadResponse.data.imageUrl;
+        const uploadResponse = await apiService.admin.uploadImage(thumbnailFormData);
+        thumbnailUrl = uploadResponse.data.images[0].imageUrl;
+      }
+
+      // Upload gallery images if any
+      if (galleryImages.length > 0) {
+        const galleryFormData = new FormData();
+        galleryImages.forEach(img => galleryFormData.append('images', img));
+        
+        const uploadResponse = await apiService.admin.uploadImage(galleryFormData);
+        imageUrls = uploadResponse.data.images.map(img => img.imageUrl);
       }
 
       // Use child category if selected, otherwise use parent category
@@ -205,7 +255,8 @@ const AdminProductForm = () => {
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
         categoryId: categoryId,
-        imageUrl: imageUrl
+        thumbnailUrl: thumbnailUrl,
+        imageUrls: imageUrls
       };
 
       if (isEdit) {
@@ -219,6 +270,15 @@ const AdminProductForm = () => {
       navigate('/admin');
     } catch (error) {
       console.error('Failed to save product:', error);
+      if (error.response) {
+        console.error('Status:', error.response.status);
+        console.error('Data:', error.response.data);
+        console.error('Headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('Request:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
       toast.error(error.response?.data?.message || 'Failed to save product');
     } finally {
       setLoading(false);
@@ -385,22 +445,22 @@ const AdminProductForm = () => {
               )}
             </div>
 
-            {/* Image Upload */}
+            {/* Thumbnail Image Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product Image
+                Thumbnail Image
               </label>
               
-              {imagePreview ? (
+              {thumbnailPreview ? (
                 <div className="relative inline-block">
                   <img
-                    src={imagePreview}
-                    alt="Preview"
+                    src={thumbnailPreview}
+                    alt="Thumbnail Preview"
                     className="w-32 h-32 object-cover rounded-lg border border-gray-300"
                   />
                   <button
                     type="button"
-                    onClick={removeImage}
+                    onClick={removeThumbnail}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                   >
                     <X className="w-4 h-4" />
@@ -410,16 +470,16 @@ const AdminProductForm = () => {
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="mx-auto h-12 w-12 text-gray-400" />
                   <div className="mt-2">
-                    <label htmlFor="image" className="cursor-pointer">
+                    <label htmlFor="thumbnailImage" className="cursor-pointer">
                       <span className="text-primary-600 hover:text-primary-700 font-medium">
-                        Upload an image
+                        Upload thumbnail
                       </span>
                       <input
-                        id="image"
-                        name="image"
+                        id="thumbnailImage"
+                        name="thumbnailImage"
                         type="file"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        onChange={handleThumbnailChange}
                         className="sr-only"
                       />
                     </label>
@@ -427,6 +487,46 @@ const AdminProductForm = () => {
                   <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
                 </div>
               )}
+            </div>
+
+            {/* Gallery Images Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Gallery Images (up to 5)
+              </label>
+              
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleGalleryImageChange}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+              />
+              
+              {galleryPreviews.length > 0 && (
+                <div className="mt-4">
+                  <div className="flex flex-wrap gap-2">
+                    {galleryPreviews.map((preview, idx) => (
+                      <div key={idx} className="relative">
+                        <img
+                          src={preview}
+                          alt={`Gallery ${idx + 1}`}
+                          className="w-20 h-20 object-cover rounded-lg border border-gray-300"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeGalleryImage(idx)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB each, max 5 images</p>
             </div>
 
             {/* Submit Button */}

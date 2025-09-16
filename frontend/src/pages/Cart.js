@@ -113,7 +113,7 @@ const Cart = () => {
                       {/* Product Image */}
                       <div className="flex-shrink-0 w-20 h-20">
                         <img
-                          src={item.products.image_url || 'https://via.placeholder.com/80x80/f3f4f6/9ca3af?text=No+Image'}
+                          src={item.products.thumbnail_url || 'https://via.placeholder.com/80x80/f3f4f6/9ca3af?text=No+Image'}
                           alt={item.products.name}
                           className="w-full h-full object-cover rounded-lg"
                         />

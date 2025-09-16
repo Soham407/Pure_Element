@@ -16,7 +16,7 @@ const ProductCard = ({ product }) => {
     await addToCart(product.id, 1);
   };
 
-  const bgImage = product.image_url || 'https://via.placeholder.com/400x400/f3f4f6/9ca3af?text=No+Image';
+  const bgImage = product.thumbnail_url || 'https://via.placeholder.com/400x400/f3f4f6/9ca3af?text=No+Image';
 
   return (
     <div

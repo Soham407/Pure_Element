@@ -155,7 +155,7 @@ const ProductDetail = () => {
           <div className="space-y-4">
             <div className="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden shadow-lg">
               <img
-                src={product.image_url || 'https://via.placeholder.com/600x600/f3f4f6/9ca3af?text=No+Image'}
+                src={product.thumbnail_url || 'https://via.placeholder.com/600x600/f3f4f6/9ca3af?text=No+Image'}
                 alt={product.name}
                 className="w-full h-96 object-cover"
               />

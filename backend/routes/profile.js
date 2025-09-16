@@ -104,7 +104,7 @@ router.get('/orders', authenticateToken, async (req, res) => {
           products (
             id,
             name,
-            image_url
+            thumbnail_url
           )
         )
       `)

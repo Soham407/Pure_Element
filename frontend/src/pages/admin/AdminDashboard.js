@@ -172,7 +172,7 @@ const AdminDashboard = () => {
                         <div className="flex-shrink-0 h-10 w-10">
                           <img
                             className="h-10 w-10 rounded-lg object-cover"
-                            src={product.image_url || 'https://via.placeholder.com/40x40/f3f4f6/9ca3af?text=No+Image'}
+                            src={product.thumbnail_url || 'https://via.placeholder.com/40x40/f3f4f6/9ca3af?text=No+Image'}
                             alt={product.name}
                           />
                         </div>
