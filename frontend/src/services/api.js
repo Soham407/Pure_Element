@@ -59,7 +59,7 @@ export const apiService = {
   products: {
     getAll: () => apiClient.get('/products'),
     getById: (id) => apiClient.get(`/products/${id}`),
-    getByCategory: (categoryId) => apiClient.get(`/products/category/${categoryId}`),
+    getByCategory: (categoryId, params = {}) => apiClient.get(`/products/category/${categoryId}`, { params }),
     search: (query) => apiClient.get(`/products/search/${query}`),
     getImages: (id) => apiClient.get(`/products/${id}/images`),
   },

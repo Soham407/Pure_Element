@@ -200,10 +200,10 @@ const Navbar = () => {
                     {item.children && item.children.length>0 && <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180"/>}
                   </Link>
                 ) : (
-                  <button className="flex items-center space-x-2 text-sm font-semibold tracking-wide uppercase whitespace-nowrap nav-link">
+                  <Link to={`/products?category=${item.id}`} className="flex items-center space-x-2 text-sm font-semibold tracking-wide uppercase whitespace-nowrap nav-link">
                     <span>{item.name}</span>
                     {item.children && item.children.length>0 && <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180"/>}
-                  </button>
+                  </Link>
                 )}
                 {item.children && item.children.length>0 && (
                   <div
@@ -265,16 +265,25 @@ const Navbar = () => {
               </Link>
               {menuTree.map((item)=> (
                 <div key={item.id}>
-                  {/* Parent category button */}
-                  <button
-                    onClick={() => setOpenMobileDropdown(openMobileDropdown === item.id ? null : item.id)}
-                    className="flex justify-between items-center px-4 py-3 w-full font-medium tracking-wide uppercase rounded-lg transition-colors duration-200 text-neutral-700 hover:text-primary-600 hover:bg-primary-50"
-                  >
-                    <span>{item.name}</span>
+                  {/* Parent category row: title navigates, chevron toggles */}
+                  <div className="flex justify-between items-center px-4 py-3 w-full font-medium tracking-wide uppercase rounded-lg transition-colors duration-200 text-neutral-700 hover:text-primary-600 hover:bg-primary-50">
+                    <Link 
+                      to={`/products?category=${item.id}`}
+                      onClick={()=>setIsMenuOpen(false)}
+                      className="flex-1 text-left"
+                    >
+                      {item.name}
+                    </Link>
                     {item.children && item.children.length>0 && (
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${openMobileDropdown === item.id ? 'rotate-180' : ''}`}/>
+                      <button
+                        aria-label="Toggle subcategories"
+                        onClick={() => setOpenMobileDropdown(openMobileDropdown === item.id ? null : item.id)}
+                        className="p-2"
+                      >
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${openMobileDropdown === item.id ? 'rotate-180' : ''}`}/>
+                      </button>
                     )}
-                  </button>
+                  </div>
                   {item.children && item.children.length>0 && openMobileDropdown === item.id && (
                     <div className="pl-6 space-y-1">
                       {item.children.map(child=> (

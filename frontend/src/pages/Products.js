@@ -29,6 +29,9 @@ const Products = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(24);
+  const [total, setTotal] = useState(0);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { addToCart } = useCart();
@@ -49,25 +52,31 @@ const Products = () => {
       let response;
       
       if (selectedCategory) {
-        response = await apiService.products.getByCategory(selectedCategory);
+        response = await apiService.products.getByCategory(selectedCategory, { page, limit });
       } else {
         response = await apiService.products.getAll();
       }
       
       setProducts(response.data.products);
+      if (selectedCategory) {
+        setTotal(response.data.total || 0);
+      } else {
+        setTotal(Array.isArray(response.data.products) ? response.data.products.length : 0);
+      }
     } catch (error) {
       console.error('Failed to fetch products:', error);
       toast.error('Failed to load products');
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, page, limit]);
 
   useEffect(() => {
     fetchCategories();
     const categoryParam = searchParams.get('category');
     if (categoryParam) {
       setSelectedCategory(categoryParam);
+      setPage(1);
     }
   }, [searchParams]);
 
@@ -86,6 +95,8 @@ const Products = () => {
       setLoading(true);
       const response = await apiService.products.search(searchQuery);
       setProducts(response.data.products);
+      setTotal(Array.isArray(response.data.products) ? response.data.products.length : 0);
+      setPage(1);
     } catch (error) {
       console.error('Search failed:', error);
       toast.error('Search failed');
@@ -97,6 +108,7 @@ const Products = () => {
   const handleCategoryChange = (categoryId) => {
     setSelectedCategory(categoryId);
     setSearchQuery('');
+    setPage(1);
     if (categoryId) {
       setSearchParams({ category: categoryId });
     } else {
@@ -284,6 +296,7 @@ const Products = () => {
               setSelectedCategory('');
               setSearchQuery('');
               setSearchParams({});
+              setPage(1);
             }}
             className="text-primary-600 hover:text-primary-700 text-lg font-medium transition-colors duration-200"
           >
@@ -393,6 +406,28 @@ const Products = () => {
                 </div>
               )
             ))}
+          </div>
+        )}
+        {/* Pagination */}
+        {!loading && total > limit && (
+          <div className="flex justify-center items-center gap-4 mt-12">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className={`px-4 py-2 rounded-lg border ${page <= 1 ? 'text-neutral-400 border-neutral-200 cursor-not-allowed' : 'text-primary-600 border-primary-200 hover:bg-primary-50'}`}
+            >
+              Previous
+            </button>
+            <span className="text-neutral-600 font-medium">
+              Page {page} of {Math.max(1, Math.ceil(total / limit))}
+            </span>
+            <button
+              disabled={page >= Math.ceil(total / limit)}
+              onClick={() => setPage((p) => p + 1)}
+              className={`px-4 py-2 rounded-lg border ${page >= Math.ceil(total / limit) ? 'text-neutral-400 border-neutral-200 cursor-not-allowed' : 'text-primary-600 border-primary-200 hover:bg-primary-50'}`}
+            >
+              Next
+            </button>
           </div>
         )}
       </div>
